@@ -1,36 +1,363 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+Sim. Como o Atmô já passou da fase de ideia e já temos **Next.js + Supabase + autenticação + banco + RLS + estrutura inicial**, vale criar um README que documente o estado atual sem fingir que as partes ainda não implementadas estão prontas.
 
-## Getting Started
+Eu faria assim:
 
-First, run the development server:
+# Atmô
+
+> Plataforma para conectar pessoas através de atividades presenciais em pequenos grupos, criando oportunidades de interação e novas conexões em uma cidade.
+
+## Sobre o projeto
+
+O **Atmô** é uma plataforma que busca facilitar a criação de conexões entre pessoas, principalmente aquelas que chegaram recentemente a uma cidade ou querem conhecer novas pessoas através de experiências presenciais.
+
+A proposta é permitir que usuários encontrem e participem de **atividades em pequenos grupos**, organizadas por pessoas da própria comunidade.
+
+As atividades podem ser gratuitas ou pagas e possuem informações como local, endereço, categoria, duração, número de vagas e responsável pela atividade.
+
+---
+
+## Objetivo do MVP
+
+O objetivo inicial é validar o modelo da plataforma com um fluxo simples:
+
+1. Usuário cria uma conta.
+2. Usuário acessa a plataforma.
+3. Usuário visualiza atividades disponíveis.
+4. Usuário pode se inscrever em uma atividade.
+5. Usuário pode cancelar sua inscrição.
+6. Usuário pode criar uma atividade, quando possuir permissão para isso.
+7. Participantes recebem as informações necessárias para comparecer à atividade.
+
+---
+
+## Status atual
+
+### Fundação
+
+* [x] Projeto Next.js criado
+* [x] TypeScript configurado
+* [x] Tailwind CSS configurado
+* [x] Projeto Supabase criado
+* [x] Variáveis de ambiente configuradas
+* [x] Supabase Client configurado
+* [x] Next.js conectado ao Supabase
+
+### Autenticação
+
+* [x] Página de cadastro
+* [x] Página de login
+* [x] Cadastro utilizando Supabase Auth
+* [x] Login utilizando Supabase Auth
+* [x] Criação automática do perfil após cadastro
+* [x] Trigger para criação de perfil
+* [x] Nome do usuário enviado durante o cadastro
+* [x] Testes de cadastro e login realizados
+
+### Banco de dados
+
+Estrutura inicial do banco criada para suportar:
+
+* `profiles`
+* `activities`
+* inscrições/participações
+* histórico do usuário
+* presença nas atividades
+
+A tabela `profiles` está vinculada ao usuário autenticado através do `auth.users` do Supabase.
+
+### Segurança
+
+* [x] Row Level Security (RLS) configurado nas tabelas necessárias
+* [x] Policies para controle de acesso aos perfis
+* [x] Estrutura de policies para controle das atividades e participação
+* [x] Regras para impedir alterações indevidas por usuários comuns
+
+---
+
+## Funcionalidades previstas
+
+### Usuário
+
+* Cadastro
+* Login
+* Logout
+* Perfil
+* Visualização de atividades
+* Inscrição em atividades
+* Cancelamento de inscrição
+* Visualização das atividades das quais participa
+
+### Organizador
+
+* Criar atividades
+* Editar atividades
+* Gerenciar vagas
+* Visualizar participantes
+* Marcar presença
+
+### Atividade
+
+Cada atividade deverá possuir, inicialmente:
+
+* Título
+* Descrição
+* Categoria
+* Local
+* Endereço
+* Data
+* Horário
+* Duração
+* Número máximo de participantes
+* Valor
+* Organizador
+* Status
+* Informações sobre recorrência
+* Imagens, quando aplicável
+
+---
+
+## Categorias iniciais
+
+As categorias previstas para o MVP são:
+
+* **Manuais & Reparos**
+* **Artística & Criativa**
+* **Intelectuais & Leitura**
+* **Jogos**
+* **Atividade Física**
+
+---
+
+## Regras definidas para o MVP
+
+* Atividades podem ser **gratuitas ou pagas**.
+* É necessário possuir cadastro para participar.
+* O participante pode cancelar sua inscrição.
+* Atividades podem possuir limite de vagas.
+* O endereço será público antes da confirmação da participação.
+* O organizador será exibido.
+* Atividades poderão possuir fotos.
+* A confirmação da participação poderá utilizar e-mail.
+* Sistema de reputação não fará parte da primeira versão do MVP.
+
+---
+
+## Tecnologias
+
+### Frontend
+
+* Next.js
+* React
+* TypeScript
+* Tailwind CSS
+
+### Backend / BaaS
+
+* Supabase
+* PostgreSQL
+* Supabase Auth
+* Row Level Security (RLS)
+* Database Triggers
+
+### Desenvolvimento
+
+* Git
+* GitHub
+* VS Code
+
+---
+
+## Estrutura atual
+
+```text
+atmo/
+├── app/
+│   ├── cadastro/
+│   │   └── page.tsx
+│   ├── login/
+│   │   └── page.tsx
+│   └── page.tsx
+│
+├── lib/
+│   └── supabase/
+│       └── client.ts
+│
+├── public/
+│
+├── .env.local
+├── package.json
+├── tsconfig.json
+├── next.config.ts
+└── README.md
+```
+
+> A estrutura será expandida conforme as funcionalidades do MVP forem implementadas.
+
+---
+
+## Banco de dados
+
+### `profiles`
+
+Armazena as informações públicas do usuário.
+
+Campos principais:
+
+* `id`
+* `name`
+* `avatar_url`
+* `bio`
+* `can_create_activity`
+* `created_at`
+
+O campo `id` está relacionado ao usuário existente no Supabase Auth.
+
+### `activities`
+
+Responsável pelo armazenamento das atividades criadas na plataforma.
+
+A estrutura contempla informações relacionadas à atividade, organizador, localização, vagas, data e status.
+
+### Participação
+
+A estrutura de participação será utilizada para controlar:
+
+* inscrições;
+* cancelamentos;
+* participantes;
+* presença;
+* relacionamento entre usuário e atividade.
+
+---
+
+## Autenticação
+
+A autenticação é realizada utilizando o **Supabase Auth**.
+
+Fluxo atual:
+
+```text
+Cadastro
+   ↓
+Supabase Auth
+   ↓
+auth.users
+   ↓
+Database Trigger
+   ↓
+public.profiles
+```
+
+O cadastro envia o nome do usuário através dos metadados do Supabase Auth e o trigger utiliza essa informação para criar o respectivo perfil.
+
+---
+
+## Próximos passos
+
+### Sprint 2 — Banco
+
+* [x] Criar `profiles`
+* [ ] Finalizar `activities`
+* [ ] Finalizar tabela de categorias
+* [ ] Finalizar tabela de inscrições
+* [ ] Finalizar tabela de presença
+* [ ] Revisar todas as policies RLS
+* [ ] Criar relacionamentos e constraints
+
+### Sprint 3 — Autenticação e sessão
+
+* [x] Cadastro
+* [x] Login
+* [ ] Logout
+* [ ] Persistência de sessão
+* [ ] Proteção de rotas
+* [ ] Redirecionamento de usuário autenticado
+* [ ] Controle de acesso para criação de atividades
+
+### Sprint 4 — Atividades
+
+* [ ] Listagem de atividades
+* [ ] Página de detalhes
+* [ ] Criar atividade
+* [ ] Editar atividade
+* [ ] Cancelar atividade
+* [ ] Controle de vagas
+* [ ] Status da atividade
+
+### Sprint 5 — Participantes
+
+* [ ] Inscrição
+* [ ] Cancelamento de inscrição
+* [ ] Lista de participantes
+* [ ] Controle de vagas
+* [ ] Registro de presença
+* [ ] Histórico do usuário
+
+### Sprint 6 — Experiência do usuário
+
+* [ ] Perfil
+* [ ] Categorias
+* [ ] Busca
+* [ ] Filtros
+* [ ] Melhorias de responsividade
+* [ ] Estados de carregamento
+* [ ] Mensagens de erro e sucesso
+
+---
+
+## Variáveis de ambiente
+
+O projeto utiliza variáveis de ambiente para conexão com o Supabase.
+
+Criar um arquivo:
+
+```text
+.env.local
+```
+
+Com as variáveis necessárias:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=seu_supabase_url
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sua_supabase_publishable_key
+```
+
+As credenciais reais **não devem ser versionadas no Git**.
+
+---
+
+## Executando o projeto
+
+Instale as dependências:
+
+```bash
+npm install
+```
+
+Execute o servidor de desenvolvimento:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+O projeto estará disponível em:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```text
+http://localhost:3000
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## Desenvolvimento
 
-To learn more about Next.js, take a look at the following resources:
+O projeto ainda está em fase de desenvolvimento do MVP.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Funcionalidades marcadas como `[x]` já foram implementadas e testadas.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Funcionalidades marcadas como `[ ]` ainda fazem parte do desenvolvimento planejado.
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Licença
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Projeto em desenvolvimento.
