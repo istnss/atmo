@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 
 import { supabase } from '@/lib/supabase/client'
-import { getCurrentUser } from '@/lib/supabase/auth'
 
 type Profile = {
     id: string
@@ -23,7 +22,7 @@ export default function PerfilPage() {
 
     useEffect(() => {
         async function loadProfile() {
-            const user = await getCurrentUser()
+            const { data: { user } } = await supabase.auth.getUser()
 
             if (!user) {
                 router.push('/login')
