@@ -17,6 +17,8 @@ type Activity = {
     max_participants: number
     category_id: number
     creator_id: string
+    cancellation_reason: string | null
+    status: string
 }
 
 type Category = {
@@ -62,7 +64,6 @@ export default function AtividadeDetalhesPage() {
                     .from('activities')
                     .select('*')
                     .eq('id', activityId)
-                    .eq('status', 'approved')
                     .single()
 
             if (activityError || !activityData) {
@@ -199,6 +200,49 @@ export default function AtividadeDetalhesPage() {
         setJoining(false)
     }
 
+    async function handleCancelActivity() {
+        if (!activity) {
+            return
+        }
+
+        const reason = window.prompt(
+            'Informe o motivo do cancelamento:'
+        )
+
+        if (!reason || reason.trim() === '') {
+            return
+        }
+
+        setJoining(true)
+        setMessage('')
+        setError('')
+
+        const { error: cancelError } = await supabase
+            .from('activities')
+            .update({
+                status: 'cancelled',
+                cancellation_reason: reason.trim(),
+            })
+            .eq('id', activity.id)
+
+        if (cancelError) {
+            setError(cancelError.message)
+            setJoining(false)
+            return
+        }
+
+        setActivity({
+            ...activity,
+            status: 'cancelled',
+            cancellation_reason: reason.trim(),
+        })
+
+        setMessage('Atividade cancelada com sucesso.')
+        setJoining(false)
+    }
+
+
+
     if (loading) {
         return (
             <main>
@@ -289,9 +333,35 @@ export default function AtividadeDetalhesPage() {
                 </p>
 
                 {isCreator && (
-                    <p>
-                        Você é o organizador desta atividade.
-                    </p>
+
+                    <section>
+                        <p>Você é o organizador desta atividade.</p>
+
+                        {(activity.status === 'pending' ||
+                            activity.status === 'rejected') && (
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        router.push(`/atividades/${activity.id}/editar`)
+                                    }
+                                >
+                                    Editar atividade
+                                </button>
+                            )}
+
+                        {activity.status !== 'cancelled' &&
+                            activity.status !== 'finished' && (
+                                <button
+                                    type="button"
+                                    onClick={handleCancelActivity}
+                                    disabled={joining}
+                                >
+                                    {joining
+                                        ? 'Cancelando...'
+                                        : 'Cancelar atividade'}
+                                </button>
+                            )}
+                    </section>
                 )}
 
                 {!isCreator && isParticipant && (

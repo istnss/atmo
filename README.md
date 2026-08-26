@@ -172,10 +172,26 @@ As categorias previstas para o MVP são:
 ```text
 atmo/
 ├── app/
+│   ├── atividades/
+│   │   ├── page.tsx
+│   │   └── [id]/
+│   │       ├── page.tsx
+│   │       └── editar/
+│   │           └── page.tsx
 │   ├── cadastro/
+│   │   └── page.tsx
+│   ├── categorias/
+│   │   └── page.tsx
+│   ├── criar-atividade/
 │   │   └── page.tsx
 │   ├── login/
 │   │   └── page.tsx
+│   ├── minhas-atividades/
+│   │   └── page.tsx
+│   ├── perfil/
+│   │   └── page.tsx
+│   ├── globals.css
+│   ├── layout.tsx
 │   └── page.tsx
 │
 ├── lib/
@@ -257,51 +273,51 @@ O cadastro envia o nome do usuário através dos metadados do Supabase Auth e o 
 ### Sprint 2 — Banco
 
 * [x] Criar `profiles`
-* [ ] Finalizar `activities`
-* [ ] Finalizar tabela de categorias
-* [ ] Finalizar tabela de inscrições
+* [x] Finalizar `activities`
+* [x] Finalizar tabela de categorias
+* [x] Finalizar tabela de inscrições
 * [ ] Finalizar tabela de presença
-* [ ] Revisar todas as policies RLS
-* [ ] Criar relacionamentos e constraints
+* [x] Revisar todas as policies RLS
+* [x] Criar relacionamentos e constraints
 
 ### Sprint 3 — Autenticação e sessão
 
 * [x] Cadastro
 * [x] Login
-* [ ] Logout
-* [ ] Persistência de sessão
-* [ ] Proteção de rotas
-* [ ] Redirecionamento de usuário autenticado
-* [ ] Controle de acesso para criação de atividades
+* [x] Logout
+* [x] Persistência de sessão
+* [x] Proteção de rotas
+* [x] Redirecionamento de usuário autenticado
+* [x] Controle de acesso para criação de atividades
 
 ### Sprint 4 — Atividades
 
-* [ ] Listagem de atividades
-* [ ] Página de detalhes
-* [ ] Criar atividade
-* [ ] Editar atividade
-* [ ] Cancelar atividade
-* [ ] Controle de vagas
-* [ ] Status da atividade
+* [x] Listagem de atividades
+* [x] Página de detalhes
+* [x] Criar atividade
+* [x] Editar atividade
+* [x] Cancelar atividade
+* [x] Controle de vagas
+* [x] Status da atividade
 
 ### Sprint 5 — Participantes
 
-* [ ] Inscrição
-* [ ] Cancelamento de inscrição
-* [ ] Lista de participantes
-* [ ] Controle de vagas
+* [x] Inscrição
+* [x] Cancelamento de inscrição
+* [x] Lista de participantes (visualização da contagem e vagas disponíveis)
+* [x] Controle de vagas
 * [ ] Registro de presença
 * [ ] Histórico do usuário
 
 ### Sprint 6 — Experiência do usuário
 
-* [ ] Perfil
-* [ ] Categorias
+* [x] Perfil
+* [x] Categorias (página dedicada `/categorias` e seleção na criação)
 * [ ] Busca
 * [ ] Filtros
 * [ ] Melhorias de responsividade
-* [ ] Estados de carregamento
-* [ ] Mensagens de erro e sucesso
+* [x] Estados de carregamento
+* [x] Mensagens de erro e sucesso
 
 ---
 
@@ -351,9 +367,7 @@ http://localhost:3000
 ## Desenvolvimento
 
 O projeto ainda está em fase de desenvolvimento do MVP.
-
 Funcionalidades marcadas como `[x]` já foram implementadas e testadas.
-
 Funcionalidades marcadas como `[ ]` ainda fazem parte do desenvolvimento planejado.
 
 ---
