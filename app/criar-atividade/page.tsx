@@ -19,9 +19,16 @@ export default function CriarAtividadePage() {
     const [startTime, setStartTime] = useState('')
     const [endTime, setEndTime] = useState('')
     const [locationName, setLocationName] = useState('')
-    const [address, setAddress] = useState('')
     const [price, setPrice] = useState('0')
     const [maxParticipants, setMaxParticipants] = useState('')
+
+    const [cep, setCep] = useState('')
+    const [street, setStreet] = useState('')
+    const [number, setNumber] = useState('')
+    const [neighborhood, setNeighborhood] = useState('')
+    const [city, setCity] = useState('')
+    const [state, setState] = useState('')
+    const [loadingCep, setLoadingCep] = useState(false)
 
     const [loading, setLoading] = useState(false)
     const [message, setMessage] = useState('')
@@ -46,12 +53,79 @@ export default function CriarAtividadePage() {
         loadCategories()
     }, [])
 
+    async function handleCepBlur() {
+    const cleanCep = cep.replace(/\D/g, '')
+
+    if (cleanCep.length !== 8) {
+        return
+    }
+
+    try {
+        setLoadingCep(true)
+        setError('')
+
+        const response = await fetch(
+            `https://viacep.com.br/ws/${cleanCep}/json/`
+        )
+
+        if (!response.ok) {
+            throw new Error('Erro ao consultar o CEP.')
+        }
+
+        const data = await response.json()
+
+        if (data.erro) {
+            throw new Error('CEP não encontrado.')
+        }
+
+        if (
+    data.localidade !== 'Itajaí' ||
+    data.uf !== 'SC'
+) {
+    setStreet('')
+    setNeighborhood('')
+    setCity('')
+    setState('')
+
+    throw new Error(
+        'No momento, o Atmô está disponível apenas em Itajaí - SC.'
+    )
+}
+
+        setStreet(data.logradouro || '')
+        setNeighborhood(data.bairro || '')
+        setCity(data.localidade || '')
+        setState(data.uf || '')
+
+    } catch (error) {
+        setError(
+            error instanceof Error
+                ? error.message
+                : 'Não foi possível consultar o CEP.'
+        )
+    } finally {
+        setLoadingCep(false)
+    }
+}
     async function handleSubmit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault()
 
         setLoading(true)
         setMessage('')
         setError('')
+
+        if (
+            !cep.trim() ||
+            !street.trim() ||
+            !number.trim() ||
+            !neighborhood.trim()
+        ) {
+            setError(
+                'Preencha o CEP e o número do local.'
+            )
+            setLoading(false)
+            return
+        }
 
         const {
             data: { user },
@@ -64,21 +138,63 @@ export default function CriarAtividadePage() {
             return
         }
 
+        const formattedAddress = [
+    `${street}, ${number}`,
+    neighborhood,
+    `${city} - ${state}`,
+    cep,
+]
+    .filter(Boolean)
+    .join(', ')
+
+    const geocodeResponse = await fetch('/api/geocode', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+        street,
+        number,
+        neighborhood,
+        city,
+        state,
+        postalCode: cep.replace(/\D/g, ''),
+    }),
+})
+
+const geocodeData = await geocodeResponse.json()
+
+if (!geocodeResponse.ok) {
+    setError(
+        geocodeData.error ||
+            'Não foi possível localizar o endereço.'
+    )
+    setLoading(false)
+    return
+}
+
+const {
+    latitude,
+    longitude,
+} = geocodeData
+
         const { error: insertError } = await supabase
-            .from('activities')
-            .insert({
-                creator_id: user.id,
-                category_id: Number(categoryId),
-                title,
-                description: description || null,
-                date,
-                start_time: startTime,
-                end_time: endTime || null,
-                location_name: locationName,
-                address,
-                price: Number(price),
-                max_participants: Number(maxParticipants),
-            })
+    .from('activities')
+    .insert({
+        creator_id: user.id,
+        category_id: Number(categoryId),
+        title,
+        description: description || null,
+        date,
+        start_time: startTime,
+        end_time: endTime || null,
+        location_name: locationName,
+        address: formattedAddress,
+        latitude,
+        longitude,
+        price: Number(price),
+        max_participants: Number(maxParticipants),
+    })
 
         if (insertError) {
             setError(insertError.message)
@@ -99,9 +215,14 @@ export default function CriarAtividadePage() {
         setStartTime('')
         setEndTime('')
         setLocationName('')
-        setAddress('')
         setPrice('0')
         setMaxParticipants('')
+        setCep('')
+        setStreet('')
+        setNumber('')
+        setNeighborhood('')
+        setCity('')
+        setState('')
     }
 
     return (
@@ -195,14 +316,72 @@ export default function CriarAtividadePage() {
                     </div>
 
                     <div>
-                        <label htmlFor="address">Endereço</label>
-                        <input
-                            id="address"
-                            type="text"
-                            value={address}
-                            onChange={(event) => setAddress(event.target.value)}
-                            required
-                        />
+                        <label htmlFor="cep">CEP</label>
+
+                    <input
+                        id="cep"
+                        type="text"
+                        value={cep}
+                        onChange={(e) => setCep(e.target.value)}
+                        onBlur={handleCepBlur}
+                        placeholder="00000-000"
+                    />
+
+                    {loadingCep && <p>Consultando CEP...</p>}
+                    </div>
+
+                    <div>
+                            <label htmlFor="street">Rua</label>
+
+                    <input
+                        id="street"
+                        type="text"
+                        value={street}
+                        readOnly
+                    />
+                    </div>
+
+                    <div>
+                    <label htmlFor="number">Número</label>
+
+                    <input
+                        id="number"
+                        type="text"
+                        value={number}
+                        onChange={(e) => setNumber(e.target.value)}
+                        placeholder="Número"
+                        required
+                    />
+                    </div>
+                    <div>
+                        <label htmlFor="neighborhood">Bairro</label>
+
+                    <input
+                        id="neighborhood"
+                        type="text"
+                        value={neighborhood}
+                        readOnly
+                    />
+                    </div>
+                    <div>
+                        <label htmlFor="city">Cidade</label>
+
+                    <input
+                        id="city"
+                        type="text"
+                        value={city}
+                        readOnly
+                    />
+                    </div>
+                    <div>
+                        <label htmlFor="state">Estado</label>
+
+                    <input
+                        id="state"
+                        type="text"
+                        value={state}
+                        readOnly
+                    />
                     </div>
 
                     <div>
