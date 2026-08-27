@@ -329,21 +329,22 @@ export default function Home() {
   const filteredExplore = exploreActivities.filter(filterFn);
 
   // Image mapping helpers matching the premium mockup look
-  const getCategoryImage = (categoryName: string): string => {
-    const name = categoryName.toLowerCase();
-    if (name.includes('manual') || name.includes('reparo')) {
-      return 'https://images.unsplash.com/photo-1534224039826-c7a0dea0e66a?w=500&auto=format&fit=crop&q=60';
+  const getCategoryImage = (categoryName: string, title: string = ''): string => {
+    const cat = categoryName.toLowerCase();
+    const t = title.toLowerCase();
+    if (cat.includes('manual') || cat.includes('reparo') || t.includes('banquinho') || t.includes('marcenaria')) {
+      return '/bench_coffee.svg';
     }
-    if (name.includes('art') || name.includes('criativ') || name.includes('cerâmica') || name.includes('aquarela')) {
-      return 'https://images.unsplash.com/photo-1576016770956-debb63d900ad?w=500&auto=format&fit=crop&q=60';
+    if (cat.includes('art') || cat.includes('criativ') || cat.includes('cerâmica') || t.includes('cerâmica')) {
+      return '/pottery.svg';
     }
-    if (name.includes('intelec') || name.includes('leitura') || name.includes('escrita')) {
-      return 'https://images.unsplash.com/photo-1506880018603-83d5b814b5a6?w=500&auto=format&fit=crop&q=60';
+    if (cat.includes('intelec') || cat.includes('leitura') || t.includes('leitura') || t.includes('escrita')) {
+      return '/reading_book.svg';
     }
-    if (name.includes('jogo')) {
+    if (cat.includes('jogo')) {
       return 'https://images.unsplash.com/photo-1610890716171-6b1bb98ffd09?w=500&auto=format&fit=crop&q=60';
     }
-    if (name.includes('físic') || name.includes('atividade')) {
+    if (cat.includes('físic') || cat.includes('atividade')) {
       return 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=500&auto=format&fit=crop&q=60';
     }
     return 'https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=500&auto=format&fit=crop&q=60';
@@ -351,17 +352,17 @@ export default function Home() {
 
   const getDurationColor = (categoryName: string): string => {
     const name = categoryName.toLowerCase();
-    if (name.includes('manual') || name.includes('reparo')) return 'bg-amber-500 text-amber-950 dark:bg-amber-600 dark:text-amber-50';
-    if (name.includes('art') || name.includes('criativ')) return 'bg-pink-400 text-pink-950 dark:bg-pink-500 dark:text-pink-50';
-    if (name.includes('intelec') || name.includes('leitura')) return 'bg-sky-400 text-sky-950 dark:bg-sky-500 dark:text-sky-50';
-    return 'bg-emerald-400 text-emerald-950 dark:bg-emerald-500 dark:text-emerald-50';
+    if (name.includes('manual') || name.includes('reparo')) return 'bg-[#e2a524] text-black font-bold';
+    if (name.includes('art') || name.includes('criativ')) return 'bg-[#a855f7] text-white font-bold';
+    if (name.includes('intelec') || name.includes('leitura')) return 'bg-[#06b6d4] text-white font-bold';
+    return 'bg-[#10b981] text-white font-bold';
   };
 
   const getCategoryIcon = (categoryName: string) => {
     const name = categoryName.toLowerCase();
     if (name.includes('manual') || name.includes('reparo')) {
       return (
-        <div className="p-3 bg-amber-100 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 rounded-xl">
+        <div className="w-10 h-10 bg-[#e2a524] text-white rounded-full flex items-center justify-center shrink-0 shadow-sm">
           <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
             <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -371,73 +372,107 @@ export default function Home() {
     }
     if (name.includes('art') || name.includes('criativ')) {
       return (
-        <div className="p-3 bg-pink-100 dark:bg-pink-950/40 text-pink-600 dark:text-pink-400 rounded-xl">
+        <div className="w-10 h-10 bg-[#a855f7] text-white rounded-full flex items-center justify-center shrink-0 shadow-sm">
           <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
           </svg>
         </div>
       );
     }
-    if (name.includes('intelec') || name.includes('leitura')) {
+    if (name.includes('intelec') || name.includes('leitura') || name.includes('livro') || name.includes('escrita')) {
       return (
-        <div className="p-3 bg-blue-100 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 rounded-xl">
+        <div className="w-10 h-10 bg-[#2b4c7e] text-white rounded-full flex items-center justify-center shrink-0 shadow-sm">
           <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
           </svg>
         </div>
       );
     }
+    if (name.includes('jogo')) {
+      return (
+        <div className="w-10 h-10 bg-[#b81d24] text-white rounded-full flex items-center justify-center shrink-0 shadow-sm">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <rect x="2" y="6" width="20" height="12" rx="6" fill="none" stroke="currentColor" />
+            <path d="M6 12h4M8 10v4M15 11v.01M17 13v.01" strokeLinecap="round" strokeWidth="2.5" />
+          </svg>
+        </div>
+      );
+    }
     return (
-      <div className="p-3 bg-emerald-100 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 rounded-xl">
+      <div className="w-10 h-10 bg-[#e2a524] text-white rounded-full flex items-center justify-center shrink-0 shadow-sm">
         <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-          <path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M14.5 4.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM5.5 19.5l3-3.5 2 1.5 4-5.5M10.5 11l2.5-3 3 2.5" />
         </svg>
       </div>
     );
   };
 
-  // Category button labels matching mockup
-  const categoryFilters = [
-    "Todos",
-    "Manuais & Reparos",
-    "Artísticas & Criativas",
-    "Intelectuais & Leitura",
-    "Jogos",
-    "Atividade Física"
+  // Category details mapping icons and colors
+  const categoryDetails = [
+    { name: "Todos", color: "bg-[#2b4c7e]", icon: (
+      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+      </svg>
+    )},
+    { name: "Manuais & Reparos", color: "bg-[#b81d24]", icon: (
+      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+      </svg>
+    )},
+    { name: "Artísticas & Criativas", color: "bg-[#e2a524]", icon: (
+      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+      </svg>
+    )},
+    { name: "Intelectuais & Leitura", color: "bg-[#2b4c7e]", icon: (
+      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+      </svg>
+    )},
+    { name: "Jogos", color: "bg-[#b81d24]", icon: (
+      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+        <rect x="2" y="6" width="20" height="12" rx="6" fill="none" stroke="currentColor" />
+        <path d="M6 12h4M8 10v4M15 11v.01M17 13v.01" strokeLinecap="round" strokeWidth="2.5" />
+      </svg>
+    )},
+    { name: "Atividade Física", color: "bg-[#e2a524]", icon: (
+      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M14.5 4.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM5.5 19.5l3-3.5 2 1.5 4-5.5M10.5 11l2.5-3 3 2.5" />
+      </svg>
+    )}
   ];
 
   const usernameTag = `@${email?.split('@')[0] || 'usuario'}`;
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row bg-bg-primary font-sans antialiased text-text-primary select-none transition-colors duration-200">
-
+    <div className="min-h-screen flex flex-col md:flex-row bg-[#faf9f5] dark:bg-[#0f0f10] font-sans antialiased text-text-primary select-none transition-colors duration-200">
       {/* 1. SIDEBAR (Desktop only) */}
-      <aside className="hidden md:flex flex-col w-72 bg-bg-secondary border-r border-border-primary p-6 justify-between shrink-0 h-screen sticky top-0 transition-colors duration-200">
+      <aside className="hidden md:flex flex-col w-72 bg-[#f3f2eb] dark:bg-[#161618] border-r border-[#e5e3db] dark:border-[#28282b] p-6 justify-between shrink-0 h-screen sticky top-0 transition-colors duration-200">
         {/* Logo & Navigation */}
         <div className="flex flex-col gap-8">
           {/* Brand Logo */}
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-[#e05615] flex items-center justify-center text-white font-bold text-lg shadow-sm">
-              a
-            </div>
-            <span className="text-xl font-bold text-text-primary tracking-tight">Atmo</span>
+          <div className="flex items-center gap-1 px-2">
+            <span className="text-4xl font-extrabold text-gray-900 dark:text-white tracking-tight">Atmo</span>
+            <svg className="w-4 h-4 text-amber-500 fill-current self-start mt-1.5" viewBox="0 0 24 24">
+              <path d="M12 0l3 9 9 3-9 3-3 9-3-9-9-3 9-3z" />
+            </svg>
           </div>
 
           {/* Navigation Menu */}
           <nav className="flex flex-col gap-2">
             <Link
               href="/"
-              className="flex items-center gap-3 px-4 py-3 bg-bg-primary rounded-xl text-text-primary font-bold transition-all border border-border-primary/50"
+              className="flex items-center gap-3 px-4 py-3 bg-[#b81d24] text-white rounded-xl font-bold transition-all shadow-sm"
             >
-              <svg className="w-5 h-5 text-[#e05615]" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
               </svg>
               Home
             </Link>
             <Link
               href="/atividades"
-              className="flex items-center gap-3 px-4 py-3 text-text-secondary hover:text-text-primary rounded-xl hover:bg-bg-primary/50 transition-all font-medium"
+              className="flex items-center gap-3 px-4 py-3 text-gray-700 dark:text-gray-300 hover:text-text-primary rounded-xl hover:bg-gray-200/50 dark:hover:bg-gray-800/50 transition-all font-semibold"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -446,7 +481,7 @@ export default function Home() {
             </Link>
             <Link
               href="/minhas-atividades"
-              className="flex items-center gap-3 px-4 py-3 text-text-secondary hover:text-text-primary rounded-xl hover:bg-bg-primary/50 transition-all font-medium"
+              className="flex items-center gap-3 px-4 py-3 text-gray-700 dark:text-gray-300 hover:text-text-primary rounded-xl hover:bg-gray-200/50 dark:hover:bg-gray-800/50 transition-all font-semibold"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
@@ -455,7 +490,7 @@ export default function Home() {
             </Link>
             <Link
               href="/criar-atividade"
-              className="flex items-center gap-3 px-4 py-3 text-text-secondary hover:text-text-primary rounded-xl hover:bg-bg-primary/50 transition-all font-medium"
+              className="flex items-center gap-3 px-4 py-3 text-gray-700 dark:text-gray-300 hover:text-text-primary rounded-xl hover:bg-gray-200/50 dark:hover:bg-gray-800/50 transition-all font-semibold"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
@@ -464,9 +499,9 @@ export default function Home() {
             </Link>
             <Link
               href="/perfil"
-              className="flex items-center gap-3 px-4 py-3 text-text-secondary hover:text-text-primary rounded-xl hover:bg-bg-primary/50 transition-all font-medium"
+              className="flex items-center gap-3 px-4 py-3 text-gray-700 dark:text-gray-300 hover:text-text-primary rounded-xl hover:bg-gray-200/50 dark:hover:bg-gray-800/50 transition-all font-semibold"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
@@ -480,28 +515,17 @@ export default function Home() {
           {/* Dark Mode Slide Toggle Switch */}
           <button
             onClick={toggleDarkMode}
-            className="flex items-center justify-between w-full px-4 py-3 bg-bg-primary hover:bg-bg-primary/80 border border-border-primary rounded-2xl text-text-secondary font-semibold transition-all text-sm cursor-pointer select-none"
+            className="flex items-center justify-between w-full px-4 py-3 hover:bg-gray-200/50 dark:hover:bg-gray-800/50 rounded-2xl text-text-secondary font-medium transition-all text-sm cursor-pointer select-none"
           >
             <div className="flex items-center gap-3">
-              {darkMode ? (
-                <>
-                  <svg className="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.364 17.636l-.707.707M18.364 18.364l-.707-.707M6.364 6.364l-.707-.707M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                  <span>Modo Claro</span>
-                </>
-              ) : (
-                <>
-                  <svg className="w-5 h-5 text-indigo-500 dark:text-indigo-400" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
-                  </svg>
-                  <span>Modo Escuro</span>
-                </>
-              )}
+              <svg className="w-5 h-5 text-gray-700 dark:text-gray-300" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+              </svg>
+              <span className="text-gray-700 dark:text-gray-300">Modo Escuro</span>
             </div>
 
             {/* Slide UI */}
-            <div className={`w-9 h-5 flex items-center rounded-full p-0.5 transition-colors duration-200 cursor-pointer ${darkMode ? 'bg-[#e05615]' : 'bg-gray-300 dark:bg-gray-700'}`}>
+            <div className={`w-9 h-5 flex items-center rounded-full p-0.5 transition-colors duration-200 cursor-pointer ${darkMode ? 'bg-[#b81d24]' : 'bg-gray-300 dark:bg-gray-700'}`}>
               <div className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-200 ${darkMode ? 'translate-x-4' : 'translate-x-0'}`}></div>
             </div>
           </button>
@@ -510,9 +534,9 @@ export default function Home() {
           <div className="relative">
             <div
               onClick={() => setShowProfileMenu(!showProfileMenu)}
-              className="flex items-center gap-3 p-3 bg-bg-primary hover:bg-bg-primary/80 rounded-2xl cursor-pointer transition-all border border-border-primary"
+              className="flex items-center gap-3 p-3 hover:bg-gray-200/50 dark:hover:bg-gray-800/50 rounded-2xl cursor-pointer transition-all border border-transparent"
             >
-              <div className="w-10 h-10 rounded-full bg-[#4a728f] text-white flex items-center justify-center font-bold text-base shadow-sm">
+              <div className="w-10 h-10 rounded-full bg-[#2b4c7e] text-white flex items-center justify-center font-bold text-base shadow-sm">
                 {name ? name.substring(0, 2).toUpperCase() : 'US'}
               </div>
               <div className="flex-1 min-w-0">
@@ -525,7 +549,7 @@ export default function Home() {
             </div>
 
             {showProfileMenu && (
-              <div className="absolute bottom-16 left-0 right-0 bg-bg-secondary border border-border-primary rounded-2xl shadow-xl p-2 z-50 flex flex-col gap-1">
+              <div className="absolute bottom-16 left-0 right-0 bg-white dark:bg-bg-card border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl p-2 z-50 flex flex-col gap-1">
                 <Link href="/perfil" className="px-4 py-2 hover:bg-bg-primary rounded-xl text-sm font-medium text-text-primary">Meu Perfil</Link>
                 <Link href="/minhas-atividades" className="px-4 py-2 hover:bg-bg-primary rounded-xl text-sm font-medium text-text-primary">Minhas Atividades</Link>
                 <hr className="my-1 border-border-primary" />
@@ -542,12 +566,12 @@ export default function Home() {
       </aside>
 
       {/* MOBILE TOP BAR */}
-      <header className="md:hidden flex items-center justify-between px-6 py-4 bg-bg-secondary border-b border-border-primary sticky top-0 z-40 transition-colors duration-200">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-[#e05615] flex items-center justify-center text-white font-bold text-base shadow-sm">
-            a
-          </div>
-          <span className="text-lg font-bold text-text-primary tracking-tight">Atmo</span>
+      <header className="md:hidden flex items-center justify-between px-6 py-4 bg-[#f3f2eb] dark:bg-[#161618] border-b border-[#e5e3db] dark:border-[#28282b] sticky top-0 z-40 transition-colors duration-200">
+        <div className="flex items-center gap-1.5">
+          <span className="text-2xl font-black text-gray-900 dark:text-white tracking-tight">Atmo</span>
+          <svg className="w-3.5 h-3.5 text-amber-500 fill-current self-start mt-0.5" viewBox="0 0 24 24">
+            <path d="M12 0l3 9 9 3-9 3-3 9-3-9-9-3 9-3z" />
+          </svg>
         </div>
 
         <div className="flex items-center gap-3">
@@ -581,8 +605,8 @@ export default function Home() {
       </header>
 
       {/* MOBILE BOTTOM NAVIGATION BAR */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-bg-secondary border-t border-border-primary py-2.5 px-4 flex justify-around items-center z-40 shadow-lg transition-colors duration-200">
-        <Link href="/" className="flex flex-col items-center gap-0.5 text-[#e05615]">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-[#f3f2eb] dark:bg-[#161618] border-t border-[#e5e3db] dark:border-[#28282b] py-2.5 px-4 flex justify-around items-center z-40 shadow-lg transition-colors duration-200">
+        <Link href="/" className="flex flex-col items-center gap-0.5 text-[#b81d24]">
           <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
           </svg>
@@ -592,33 +616,33 @@ export default function Home() {
           <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
-          <span className="text-[10px] font-medium">Buscar</span>
+          <span className="text-[10px] font-semibold">Buscar</span>
         </Link>
         <Link href="/criar-atividade" className="flex flex-col items-center gap-0.5 text-text-secondary hover:text-text-primary">
           <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
           </svg>
-          <span className="text-[10px] font-medium">Criar</span>
+          <span className="text-[10px] font-semibold">Criar</span>
         </Link>
         <Link href="/minhas-atividades" className="flex flex-col items-center gap-0.5 text-text-secondary hover:text-text-primary">
           <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
           </svg>
-          <span className="text-[10px] font-medium">Minhas</span>
+          <span className="text-[10px] font-semibold">Minhas</span>
         </Link>
         <Link href="/perfil" className="flex flex-col items-center gap-0.5 text-text-secondary hover:text-text-primary">
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
           </svg>
-          <span className="text-[10px] font-medium">Perfil</span>
+          <span className="text-[10px] font-semibold">Perfil</span>
         </Link>
       </nav>
 
       {/* 2. MAIN CONTENT AREA */}
-      <main className="flex-1 flex flex-col min-h-screen pb-20 md:pb-0 overflow-x-hidden">
+      <main className="flex-1 flex flex-col min-h-screen pb-20 md:pb-0 overflow-x-hidden bg-[#faf9f5] dark:bg-[#0f0f10] transition-colors duration-200">
 
         {/* Search Header Row */}
-        <div className="bg-bg-secondary border-b border-border-primary px-6 md:px-8 py-6 transition-colors duration-200">
+        <div className="bg-transparent px-6 md:px-8 py-6 transition-colors duration-200">
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -629,7 +653,7 @@ export default function Home() {
             {/* Search Input Box */}
             <div className="flex-1 relative">
               <span className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                <svg className="h-5 w-5 text-text-secondary" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
               </span>
@@ -638,52 +662,66 @@ export default function Home() {
                 placeholder="Advanced Search..."
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
-                className="w-full pl-11 pr-4 py-3 bg-bg-primary border border-border-primary rounded-full focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent text-sm shadow-sm transition-all text-text-primary"
+                className="w-full pl-11 pr-4 py-3 bg-white dark:bg-bg-card border border-gray-200 dark:border-gray-800 rounded-full focus:outline-none focus:ring-2 focus:ring-[#b81d24] focus:border-transparent text-sm shadow-sm transition-all text-text-primary"
               />
             </div>
 
             {/* Buscar Button */}
             <button
               type="submit"
-              className="px-8 py-3 bg-accent hover:bg-accent/90 text-white font-bold rounded-full text-sm transition-colors shadow-sm select-none cursor-pointer"
+              className="px-8 py-3 bg-[#b81d24] hover:bg-[#a0181d] text-white font-bold rounded-full text-sm transition-colors shadow-sm select-none cursor-pointer"
             >
               Buscar
             </button>
 
             {/* Location Select Badge */}
-            <div className="flex items-center gap-2 px-5 py-3 border border-border-primary rounded-full bg-bg-primary text-text-secondary text-sm font-semibold shadow-sm select-none sm:self-center">
-              <svg className="w-4 h-4 text-text-secondary/70" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <div className="flex items-center gap-2 px-5 py-3 border border-gray-200 dark:border-gray-800 rounded-full bg-white dark:bg-bg-card text-text-secondary text-sm font-semibold shadow-sm select-none sm:self-center">
+              <svg className="w-4 h-4 text-[#2b4c7e]" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
-              <span>Pinheiros, SP</span>
+              <span className="text-gray-800 dark:text-gray-200">Pinheiros, SP</span>
             </div>
           </form>
         </div>
 
         {/* Horizontal Categories Filter List */}
-        <div className="bg-bg-secondary border-b border-border-primary px-6 md:px-8 py-4 flex gap-3 overflow-x-auto scrollbar-none items-center transition-colors duration-200">
-          {categoryFilters.map((cat) => {
-            const isActive = selectedCategory === cat;
+        <div className="bg-transparent px-6 md:px-8 py-4 flex gap-6 overflow-x-auto scrollbar-none items-center transition-colors duration-200">
+          {categoryDetails.map((cat) => {
+            const isActive = selectedCategory === cat.name;
             return (
               <button
-                key={cat}
-                onClick={() => setSelectedCategory(cat)}
-                className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all whitespace-nowrap cursor-pointer ${isActive
-                    ? "bg-[#4a728f] text-white shadow-sm"
-                    : "border border-border-primary text-text-secondary hover:bg-bg-primary bg-bg-secondary"
-                  }`}
+                key={cat.name}
+                onClick={() => setSelectedCategory(cat.name)}
+                className={`flex items-center gap-3 py-1.5 rounded-full transition-all cursor-pointer whitespace-nowrap shrink-0 group ${
+                  isActive
+                    ? "opacity-100 scale-105 font-bold"
+                    : "opacity-75 hover:opacity-100 hover:scale-102"
+                }`}
               >
-                {cat}
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 shadow-sm ${cat.color} transition-transform group-hover:scale-110`}>
+                  {cat.icon}
+                </div>
+                {cat.name !== "Todos" && (
+                  <span className={`text-xs md:text-sm tracking-tight ${
+                    isActive
+                      ? "text-text-primary font-bold border-b-2 border-text-primary/65 pb-0.5"
+                      : "text-text-secondary font-medium"
+                  }`}>
+                    {cat.name}
+                  </span>
+                )}
               </button>
             );
           })}
         </div>
 
         {/* Popular This Week Section */}
-        <section className="bg-bg-primary px-6 md:px-8 py-8 flex-1 max-w-7xl w-full mx-auto transition-colors duration-200">
+        <section className="bg-transparent px-6 md:px-8 py-8 flex-1 max-w-7xl w-full mx-auto transition-colors duration-200">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold text-text-primary tracking-tight">Popular This Week</h2>
+            <h2 className="text-3xl font-extrabold text-text-primary tracking-tight font-sans">
+              Popular <span className="text-[#b81d24] italic font-black">This Week</span>
+            </h2>
             <button className="text-text-secondary hover:text-text-primary p-2">
               <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM18 10a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -698,29 +736,36 @@ export default function Home() {
               {filteredPopular.slice(0, 3).map((act) => (
                 <article
                   key={act.id}
-                  className="rounded-3xl border border-border-primary shadow-sm overflow-hidden flex flex-col h-full bg-bg-secondary group hover:shadow-md transition-all duration-300"
+                  onClick={() => {
+                    if (act.id < 0) {
+                      router.push('/atividades');
+                    } else {
+                      router.push(`/atividades/${act.id}`);
+                    }
+                  }}
+                  className="rounded-[32px] border border-gray-200/80 dark:border-gray-800/80 shadow-sm overflow-hidden flex flex-col h-full bg-white dark:bg-bg-card group hover:-translate-y-1.5 hover:shadow-xl hover:border-gray-300 dark:hover:border-gray-700 active:scale-98 active:translate-y-0 transition-all duration-300 ease-out cursor-pointer"
                 >
                   {/* Image & Badges */}
-                  <div className="relative h-56 w-full bg-bg-primary overflow-hidden border-b border-border-primary">
+                  <div className="relative h-56 w-full bg-[#faf9f5] dark:bg-bg-primary overflow-hidden border-b border-gray-100 dark:border-gray-800">
                     <img
-                      src={getCategoryImage(act.category_name)}
+                      src={getCategoryImage(act.category_name, act.title)}
                       alt={act.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      className="w-full h-full object-cover group-hover:scale-103 transition-transform duration-500"
                     />
 
                     {/* Badge Overlays */}
                     <div className="absolute top-4 left-4 flex gap-2">
-                      <span className={`text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wider shadow-sm ${getDurationColor(act.category_name)}`}>
+                      <span className={`text-[10px] font-extrabold px-3 py-1.5 rounded-full uppercase tracking-wider shadow-sm ${getDurationColor(act.category_name)}`}>
                         {act.duration}
                       </span>
-                      <span className="bg-black/50 text-white font-semibold text-xs px-3 py-1.5 rounded-full backdrop-blur-md shadow-sm">
+                      <span className="bg-[#1f2937]/60 text-white/90 backdrop-blur-sm text-[10px] font-bold px-3 py-1.5 rounded-full border border-white/10 shadow-sm">
                         {act.category_name}
                       </span>
                     </div>
                   </div>
 
                   {/* Card Content Body */}
-                  <div className="p-6 flex flex-col flex-1 justify-between gap-6 bg-bg-secondary transition-colors duration-200">
+                  <div className="p-6 flex flex-col flex-1 justify-between gap-6 transition-colors duration-200">
                     <div className="flex flex-col gap-3">
                       {/* Title */}
                       <h3 className="text-xl font-bold text-text-primary tracking-tight leading-snug line-clamp-2">
@@ -729,7 +774,7 @@ export default function Home() {
 
                       {/* Creator Info */}
                       <div className="flex items-center gap-2.5">
-                        <div className="w-6 h-6 rounded-full bg-[#4a728f] text-white flex items-center justify-center font-bold text-[10px]">
+                        <div className="w-8 h-8 rounded-full bg-[#2b4c7e] text-white flex items-center justify-center font-bold text-xs shadow-sm">
                           {act.creator_name.substring(0, 2).toUpperCase()}
                         </div>
                         <span className="text-xs font-semibold text-text-secondary">{act.creator_name}</span>
@@ -744,15 +789,7 @@ export default function Home() {
                     {/* Bottom Action CTA Button */}
                     <button
                       type="button"
-                      onClick={() => {
-                        if (act.id < 0) {
-                          // For mock items, route to standard atividades search or mock details
-                          router.push('/atividades');
-                        } else {
-                          router.push(`/atividades/${act.id}`);
-                        }
-                      }}
-                      className="bg-[#4a728f] hover:bg-[#3d5e77] text-white font-bold flex items-center justify-between w-full px-5 py-4 rounded-2xl transition-colors cursor-pointer select-none group/btn"
+                      className="bg-[#2b4c7e] hover:bg-[#1f3a63] text-white font-bold flex items-center justify-between w-full px-6 py-4 rounded-[20px] transition-colors select-none group/btn mt-auto"
                     >
                       <span className="text-sm">Escolher atividade ({act.available_spots} vagas)</span>
                       <svg className="w-5 h-5 group-hover/btn:translate-x-1 transition-transform" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
@@ -766,15 +803,18 @@ export default function Home() {
           )}
         </section>
 
-        {/* Explore More Activities Section (Dark Theme) */}
-        <section className="bg-bg-secondary border-t border-border-primary text-text-primary px-6 md:px-8 py-10 flex-1 w-full transition-colors duration-200">
+        {/* Explore More Activities Section */}
+        <section className="bg-transparent text-text-primary px-6 md:px-8 py-10 flex-1 w-full transition-colors duration-200">
           <div className="max-w-7xl mx-auto">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-bold tracking-tight">Explore More Activities</h2>
-              <button className="text-text-secondary hover:text-text-primary p-2">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <h2 className="text-3xl font-extrabold tracking-tight text-text-primary font-sans">
+                Explore <span className="text-[#b81d24] font-black">More Activities</span>
+              </h2>
+              <button className="flex items-center gap-2 text-gray-500 hover:text-text-primary font-bold text-sm bg-transparent border border-transparent px-3 py-1.5 rounded-xl cursor-pointer">
+                <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
                 </svg>
+                <span>Filtrar</span>
               </button>
             </div>
 
@@ -792,7 +832,7 @@ export default function Home() {
                         router.push(`/atividades/${act.id}`);
                       }
                     }}
-                    className="bg-bg-primary text-text-primary border border-border-primary rounded-2xl p-4 flex items-center justify-between cursor-pointer hover:bg-bg-primary/80 transition-all select-none shadow-sm"
+                    className="bg-white hover:bg-gray-50 dark:bg-bg-card/50 dark:hover:bg-bg-card border border-gray-200/60 dark:border-gray-800/60 hover:border-gray-300 dark:hover:border-gray-700 hover:shadow-md hover:translate-x-1 rounded-[20px] p-4 flex items-center justify-between cursor-pointer transition-all duration-300 select-none shadow-sm"
                   >
                     <div className="flex items-center gap-4">
                       {/* Colored Category Icon */}
@@ -803,8 +843,8 @@ export default function Home() {
                         <h3 className="font-bold text-base md:text-lg text-text-primary leading-tight">
                           {act.title}
                         </h3>
-                        <p className="text-xs md:text-sm text-text-secondary mt-1 font-semibold">
-                          <span className="text-[#4a728f] font-bold">{act.category_name}</span>
+                        <p className="text-xs md:text-sm text-gray-500 dark:text-gray-400 mt-1 font-medium">
+                          {act.category_name}
                           <span className="mx-2">•</span>
                           {act.date}, {act.start_time}
                           <span className="mx-2">•</span>
@@ -814,7 +854,7 @@ export default function Home() {
                     </div>
 
                     {/* Chevron Arrow */}
-                    <svg className="w-5 h-5 text-text-secondary/60" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                     </svg>
                   </div>

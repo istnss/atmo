@@ -20,6 +20,8 @@ type Activity = {
     end_time: string | null
     location_name: string
     address: string
+    latitude: number | null
+    longitude: number | null
     price: number
     max_participants: number
     status: string
@@ -41,14 +43,88 @@ export default function EditarAtividadePage() {
     const [startTime, setStartTime] = useState('')
     const [endTime, setEndTime] = useState('')
     const [locationName, setLocationName] = useState('')
-    const [address, setAddress] = useState('')
+
+    const [cep, setCep] = useState('')
+    const [street, setStreet] = useState('')
+    const [number, setNumber] = useState('')
+    const [neighborhood, setNeighborhood] = useState('')
+    const [city, setCity] = useState('')
+    const [state, setState] = useState('')
+
     const [price, setPrice] = useState('')
     const [maxParticipants, setMaxParticipants] = useState('')
 
+    const [loadingCep, setLoadingCep] = useState(false)
     const [loading, setLoading] = useState(true)
     const [saving, setSaving] = useState(false)
+
     const [message, setMessage] = useState('')
     const [error, setError] = useState('')
+
+    function extractCep(address: string) {
+        const match = address.match(/\b\d{5}-?\d{3}\b/)
+
+        return match ? match[0] : ''
+    }
+
+    function extractAddressNumber(address: string) {
+        const match = address.match(/,\s*(\d+[A-Za-z]?)(?:,|$)/)
+
+        return match ? match[1] : ''
+    }
+
+    async function loadAddressFromCep(cepValue: string) {
+        const cleanCep = cepValue.replace(/\D/g, '')
+
+        if (cleanCep.length !== 8) {
+            return
+        }
+
+        try {
+            setLoadingCep(true)
+            setError('')
+
+            const response = await fetch(
+                `https://viacep.com.br/ws/${cleanCep}/json/`
+            )
+
+            if (!response.ok) {
+                throw new Error('Erro ao consultar o CEP.')
+            }
+
+            const data = await response.json()
+
+            if (data.erro) {
+                throw new Error('CEP não encontrado.')
+            }
+
+            if (
+                data.localidade !== 'Itajaí' ||
+                data.uf !== 'SC'
+            ) {
+                throw new Error(
+                    'O endereço deve estar em Itajaí - SC.'
+                )
+            }
+
+            setStreet(data.logradouro || '')
+            setNeighborhood(data.bairro || '')
+            setCity(data.localidade || '')
+            setState(data.uf || '')
+        } catch (error) {
+            setError(
+                error instanceof Error
+                    ? error.message
+                    : 'Não foi possível consultar o CEP.'
+            )
+        } finally {
+            setLoadingCep(false)
+        }
+    }
+
+    async function handleCepBlur() {
+        await loadAddressFromCep(cep)
+    }
 
     useEffect(() => {
         async function loadData() {
@@ -100,17 +176,31 @@ export default function EditarAtividadePage() {
             setStartTime(activityData.start_time)
             setEndTime(activityData.end_time ?? '')
             setLocationName(activityData.location_name)
-            setAddress(activityData.address)
+
+            const existingCep = extractCep(activityData.address)
+            const existingNumber =
+                extractAddressNumber(activityData.address)
+
+            setCep(existingCep)
+            setNumber(existingNumber)
+
+            if (existingCep) {
+                await loadAddressFromCep(existingCep)
+            }
+
             setPrice(String(activityData.price))
+
             setMaxParticipants(
                 String(activityData.max_participants)
             )
 
-            const { data: categoriesData, error: categoriesError } =
-                await supabase
-                    .from('categories')
-                    .select('id, name')
-                    .order('name')
+            const {
+                data: categoriesData,
+                error: categoriesError,
+            } = await supabase
+                .from('categories')
+                .select('id, name')
+                .order('name')
 
             if (categoriesError) {
                 setError(categoriesError.message)
@@ -176,8 +266,28 @@ export default function EditarAtividadePage() {
             return
         }
 
-        if (!address.trim()) {
-            setError('Informe o endereço.')
+        if (
+            !cep.trim() ||
+            !street.trim() ||
+            !number.trim() ||
+            !neighborhood.trim()
+        ) {
+            setError(
+                'Preencha o CEP e o número do local.'
+            )
+            setSaving(false)
+            return
+        }
+
+        if (
+            !city ||
+            !state ||
+            city !== 'Itajaí' ||
+            state !== 'SC'
+        ) {
+            setError(
+                'O endereço deve estar em Itajaí - SC.'
+            )
             setSaving(false)
             return
         }
@@ -199,21 +309,72 @@ export default function EditarAtividadePage() {
             return
         }
 
-        const { error: updateError } = await supabase
-            .from('activities')
-            .update({
-                category_id: Number(categoryId),
-                title: title.trim(),
-                description: description.trim() || null,
-                date,
-                start_time: startTime,
-                end_time: endTime || null,
-                location_name: locationName.trim(),
-                address: address.trim(),
-                price: Number(price),
-                max_participants: Number(maxParticipants),
-            })
-            .eq('id', activity.id)
+        const formattedAddress = [
+            `${street}, ${number}`,
+            neighborhood,
+            `${city} - ${state}`,
+            cep,
+        ]
+            .filter(Boolean)
+            .join(', ')
+
+        // Geocoding
+        const geocodeResponse = await fetch(
+            '/api/geocode',
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    street,
+                    number,
+                    neighborhood,
+                    city,
+                    state,
+                    postalCode: cep.replace(/\D/g, ''),
+                }),
+            }
+        )
+
+        const geocodeData =
+            await geocodeResponse.json()
+
+        if (!geocodeResponse.ok) {
+            setError(
+                geocodeData.error ||
+                    'Não foi possível localizar o endereço.'
+            )
+            setSaving(false)
+            return
+        }
+
+        const {
+            latitude,
+            longitude,
+        } = geocodeData
+
+        const { error: updateError } =
+            await supabase
+                .from('activities')
+                .update({
+                    category_id: Number(categoryId),
+                    title: title.trim(),
+                    description:
+                        description.trim() || null,
+                    date,
+                    start_time: startTime,
+                    end_time: endTime || null,
+                    location_name:
+                        locationName.trim(),
+                    address: formattedAddress,
+                    latitude,
+                    longitude,
+                    price: Number(price),
+                    max_participants:
+                        Number(maxParticipants),
+                })
+                .eq('id', activity.id)
 
         if (updateError) {
             setError(updateError.message)
@@ -221,10 +382,16 @@ export default function EditarAtividadePage() {
             return
         }
 
-        setMessage('Atividade atualizada com sucesso.')
+        setMessage(
+            'Atividade atualizada com sucesso.'
+        )
+
         setSaving(false)
 
-        router.push(`/atividades/${activity.id}`)
+        router.push(
+            `/atividades/${activity.id}`
+        )
+
         router.refresh()
     }
 
@@ -284,7 +451,9 @@ export default function EditarAtividadePage() {
                         id="description"
                         value={description}
                         onChange={(event) =>
-                            setDescription(event.target.value)
+                            setDescription(
+                                event.target.value
+                            )
                         }
                     />
                 </div>
@@ -298,7 +467,9 @@ export default function EditarAtividadePage() {
                         id="category"
                         value={categoryId}
                         onChange={(event) =>
-                            setCategoryId(event.target.value)
+                            setCategoryId(
+                                event.target.value
+                            )
                         }
                         required
                     >
@@ -306,14 +477,16 @@ export default function EditarAtividadePage() {
                             Selecione uma categoria
                         </option>
 
-                        {categories.map((category) => (
-                            <option
-                                key={category.id}
-                                value={category.id}
-                            >
-                                {category.name}
-                            </option>
-                        ))}
+                        {categories.map(
+                            (category) => (
+                                <option
+                                    key={category.id}
+                                    value={category.id}
+                                >
+                                    {category.name}
+                                </option>
+                            )
+                        )}
                     </select>
                 </div>
 
@@ -343,7 +516,9 @@ export default function EditarAtividadePage() {
                         type="time"
                         value={startTime}
                         onChange={(event) =>
-                            setStartTime(event.target.value)
+                            setStartTime(
+                                event.target.value
+                            )
                         }
                         required
                     />
@@ -359,7 +534,9 @@ export default function EditarAtividadePage() {
                         type="time"
                         value={endTime}
                         onChange={(event) =>
-                            setEndTime(event.target.value)
+                            setEndTime(
+                                event.target.value
+                            )
                         }
                     />
                 </div>
@@ -374,25 +551,106 @@ export default function EditarAtividadePage() {
                         type="text"
                         value={locationName}
                         onChange={(event) =>
-                            setLocationName(event.target.value)
+                            setLocationName(
+                                event.target.value
+                            )
                         }
                         required
                     />
                 </div>
 
                 <div>
-                    <label htmlFor="address">
-                        Endereço
+                    <label htmlFor="cep">
+                        CEP
                     </label>
 
                     <input
-                        id="address"
+                        id="cep"
                         type="text"
-                        value={address}
+                        value={cep}
                         onChange={(event) =>
-                            setAddress(event.target.value)
+                            setCep(event.target.value)
                         }
+                        onBlur={handleCepBlur}
+                        placeholder="00000-000"
                         required
+                    />
+
+                    {loadingCep && (
+                        <p>
+                            Consultando CEP...
+                        </p>
+                    )}
+                </div>
+
+                <div>
+                    <label htmlFor="street">
+                        Rua
+                    </label>
+
+                    <input
+                        id="street"
+                        type="text"
+                        value={street}
+                        readOnly
+                    />
+                </div>
+
+                <div>
+                    <label htmlFor="number">
+                        Número
+                    </label>
+
+                    <input
+                        id="number"
+                        type="text"
+                        value={number}
+                        onChange={(event) =>
+                            setNumber(
+                                event.target.value
+                            )
+                        }
+                        placeholder="Número"
+                        required
+                    />
+                </div>
+
+                <div>
+                    <label htmlFor="neighborhood">
+                        Bairro
+                    </label>
+
+                    <input
+                        id="neighborhood"
+                        type="text"
+                        value={neighborhood}
+                        readOnly
+                    />
+                </div>
+
+                <div>
+                    <label htmlFor="city">
+                        Cidade
+                    </label>
+
+                    <input
+                        id="city"
+                        type="text"
+                        value={city}
+                        readOnly
+                    />
+                </div>
+
+                <div>
+                    <label htmlFor="state">
+                        Estado
+                    </label>
+
+                    <input
+                        id="state"
+                        type="text"
+                        value={state}
+                        readOnly
                     />
                 </div>
 
@@ -408,7 +666,9 @@ export default function EditarAtividadePage() {
                         step="0.01"
                         value={price}
                         onChange={(event) =>
-                            setPrice(event.target.value)
+                            setPrice(
+                                event.target.value
+                            )
                         }
                         required
                     />
@@ -425,7 +685,9 @@ export default function EditarAtividadePage() {
                         min="1"
                         value={maxParticipants}
                         onChange={(event) =>
-                            setMaxParticipants(event.target.value)
+                            setMaxParticipants(
+                                event.target.value
+                            )
                         }
                         required
                     />
@@ -443,7 +705,9 @@ export default function EditarAtividadePage() {
                 <button
                     type="button"
                     onClick={() =>
-                        router.push(`/atividades/${activityId}`)
+                        router.push(
+                            `/atividades/${activityId}`
+                        )
                     }
                 >
                     Cancelar
