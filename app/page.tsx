@@ -162,140 +162,8 @@ export default function Home() {
     )
   }
 
-  // Combine database activities with mockup design fallbacks to ensure layout matches image perfectly
-  const displayActivities = [...activities];
-  const fallbacks = [
-    {
-      id: -1,
-      title: "Restauro de banquinhos de madeira e café coado",
-      description: "Vamos lixar, pintar e revitalizar pequenos móveis de praça enquanto desfrutamos de um bom café.",
-      date: "Amanhã",
-      start_time: "14:00",
-      end_time: "16:00",
-      location_name: "Ateliê Coletivo",
-      address: "Rua Mourato Coelho, 123 - Pinheiros",
-      price: 0,
-      max_participants: 10,
-      category_name: "Manual",
-      creator_name: "Ateliê Coletivo",
-      creator_avatar: null,
-      confirmed_count: 4,
-      available_spots: 6,
-      duration: "120 min",
-      status: "approved"
-    },
-    {
-      id: -2,
-      title: "Introdução à Cerâmica Artesanal: Tigelas Básicas",
-      description: "Uma tarde imersiva aprendendo os fundamentos do torno para criar sua própria peça de cerâmica.",
-      date: "Sábado",
-      start_time: "15:00",
-      end_time: "16:30",
-      location_name: "Cerâmica da Vila",
-      address: "Rua Harmonia, 456 - Vila Madalena",
-      price: 50,
-      max_participants: 12,
-      category_name: "Criativa",
-      creator_name: "Cerâmica da Vila",
-      creator_avatar: null,
-      confirmed_count: 4,
-      available_spots: 8,
-      duration: "90 min",
-      status: "approved"
-    },
-    {
-      id: -3,
-      title: "Clube de Leitura: Clássicos Esquecidos da Literatura",
-      description: "Discussão guiada sobre obras menos conhecidas de autores consagrados mundiais.",
-      date: "Quinta-feira",
-      start_time: "19:00",
-      end_time: "20:00",
-      location_name: "Biblioteca Municipal",
-      address: "Av. Paulista, 900 - Bela Vista",
-      price: 0,
-      max_participants: 15,
-      category_name: "Intelectual",
-      creator_name: "Biblioteca Municipal",
-      creator_avatar: null,
-      confirmed_count: 3,
-      available_spots: 12,
-      duration: "60 min",
-      status: "approved"
-    }
-  ];
-
-  fallbacks.forEach(fb => {
-    if (!displayActivities.some(a => a.title.toLowerCase() === fb.title.toLowerCase())) {
-      displayActivities.push(fb as any);
-    }
-  });
-
-  const exploreActivities = [...activities];
-  const fallbacksExplore = [
-    {
-      id: -4,
-      title: "Escrita Criativa: Diários de Viagem",
-      description: "Registre suas aventuras de forma literária e envolvente.",
-      date: "Hoje",
-      start_time: "19:00",
-      end_time: "20:30",
-      location_name: "Centro Cultural",
-      address: "Rua Vergueiro, 1000",
-      price: 0,
-      max_participants: 20,
-      category_name: "Intelectual",
-      creator_name: "Clube do Livro",
-      creator_avatar: null,
-      confirmed_count: 5,
-      available_spots: 15,
-      duration: "90 min",
-      status: "approved"
-    },
-    {
-      id: -5,
-      title: "Oficina de Marcenaria Básica",
-      description: "Aprenda a manusear ferramentas de corte e lixamento com segurança.",
-      date: "Amanhã",
-      start_time: "14:00",
-      end_time: "17:00",
-      location_name: "Oficina Aberta",
-      address: "Rua Fradique Coutinho, 500",
-      price: 0,
-      max_participants: 8,
-      category_name: "Manual",
-      creator_name: "Lab Garagem",
-      creator_avatar: null,
-      confirmed_count: 2,
-      available_spots: 6,
-      duration: "180 min",
-      status: "approved"
-    },
-    {
-      id: -6,
-      title: "Aquarela ao Ar Livre",
-      description: "Pintura livre de paisagens no parque orientado por um artista.",
-      date: "Quarta",
-      start_time: "10:00",
-      end_time: "12:00",
-      location_name: "Parque Villa-Lobos",
-      address: "Av. Queiroz Filho, 1365",
-      price: 0,
-      max_participants: 10,
-      category_name: "Criativa",
-      creator_name: "Ateliê no Parque",
-      creator_avatar: null,
-      confirmed_count: 3,
-      available_spots: 7,
-      duration: "120 min",
-      status: "approved"
-    }
-  ];
-
-  fallbacksExplore.forEach(fb => {
-    if (!exploreActivities.some(a => a.title.toLowerCase() === fb.title.toLowerCase())) {
-      exploreActivities.push(fb as any);
-    }
-  });
+  const displayActivities = activities;
+  const exploreActivities = activities;
 
   // Filtering logic
   const filterFn = (act: any) => {
@@ -407,40 +275,12 @@ export default function Home() {
     );
   };
 
-  // Category details mapping icons and colors
   const categoryDetails = [
-    { name: "Todos", color: "bg-[#2b4c7e]", icon: (
-      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-      </svg>
-    )},
-    { name: "Manuais & Reparos", color: "bg-[#b81d24]", icon: (
-      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-        <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-      </svg>
-    )},
-    { name: "Artísticas & Criativas", color: "bg-[#e2a524]", icon: (
-      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
-      </svg>
-    )},
-    { name: "Intelectuais & Leitura", color: "bg-[#2b4c7e]", icon: (
-      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-      </svg>
-    )},
-    { name: "Jogos", color: "bg-[#b81d24]", icon: (
-      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-        <rect x="2" y="6" width="20" height="12" rx="6" fill="none" stroke="currentColor" />
-        <path d="M6 12h4M8 10v4M15 11v.01M17 13v.01" strokeLinecap="round" strokeWidth="2.5" />
-      </svg>
-    )},
-    { name: "Atividade Física", color: "bg-[#e2a524]", icon: (
-      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M14.5 4.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM5.5 19.5l3-3.5 2 1.5 4-5.5M10.5 11l2.5-3 3 2.5" />
-      </svg>
-    )}
+    { name: 'Todos', color: 'bg-[#5f0a92]' },
+    ...categories.map((category) => ({
+      name: category.name,
+      color: 'bg-[#2B4C7E]',
+    })),
   ];
 
   const usernameTag = `@${email?.split('@')[0] || 'usuario'}`;
@@ -470,7 +310,7 @@ export default function Home() {
               </svg>
               Home
             </Link>
-            <Link
+            {/*<Link
               href="/atividades"
               className="flex items-center gap-3 px-4 py-3 text-gray-700 dark:text-gray-300 hover:text-text-primary rounded-xl hover:bg-gray-200/50 dark:hover:bg-gray-800/50 transition-all font-semibold"
             >
@@ -478,7 +318,7 @@ export default function Home() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
               Discover
-            </Link>
+            </Link> */}
             <Link
               href="/minhas-atividades"
               className="flex items-center gap-3 px-4 py-3 text-gray-700 dark:text-gray-300 hover:text-text-primary rounded-xl hover:bg-gray-200/50 dark:hover:bg-gray-800/50 transition-all font-semibold"
@@ -497,7 +337,7 @@ export default function Home() {
               </svg>
               Criar Atividade
             </Link>
-            <Link
+            {/*<Link
               href="/perfil"
               className="flex items-center gap-3 px-4 py-3 text-gray-700 dark:text-gray-300 hover:text-text-primary rounded-xl hover:bg-gray-200/50 dark:hover:bg-gray-800/50 transition-all font-semibold"
             >
@@ -506,7 +346,7 @@ export default function Home() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
               Configurações
-            </Link>
+            </Link> */}
           </nav>
         </div>
 
@@ -641,14 +481,22 @@ export default function Home() {
       {/* 2. MAIN CONTENT AREA */}
       <main className="flex-1 flex flex-col min-h-screen pb-20 md:pb-0 overflow-x-hidden bg-[#faf9f5] dark:bg-[#0f0f10] transition-colors duration-200">
 
+
         {/* Search Header Row */}
         <div className="bg-transparent px-6 md:px-8 py-6 transition-colors duration-200">
+          <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#b81d24]">Atmo</p>
+              <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-text-primary md:text-3xl">
+                Olá, {name}
+              </h1>
+            </div>
           <form
             onSubmit={(e) => {
               e.preventDefault();
               setSearchQuery(searchInput);
             }}
-            className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center max-w-5xl"
+            className="flex w-full flex-col items-stretch gap-3 sm:flex-row sm:items-center lg:max-w-3xl"
           >
             {/* Search Input Box */}
             <div className="flex-1 relative">
@@ -680,37 +528,38 @@ export default function Home() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
-              <span className="text-gray-800 dark:text-gray-200">Pinheiros, SP</span>
+              <span className="text-gray-800 dark:text-gray-200">Cidade, Estado</span>
             </div>
           </form>
+          </div>
         </div>
 
         {/* Horizontal Categories Filter List */}
-        <div className="bg-transparent px-6 md:px-8 py-4 flex gap-6 overflow-x-auto scrollbar-none items-center transition-colors duration-200">
+        <div className="flex items-center justify-center gap-6 overflow-x-auto bg-transparent px-6 py-4 scrollbar-none transition-colors duration-200">
           {categoryDetails.map((cat) => {
             const isActive = selectedCategory === cat.name;
             return (
               <button
                 key={cat.name}
                 onClick={() => setSelectedCategory(cat.name)}
-                className={`flex items-center gap-3 py-1.5 rounded-full transition-all cursor-pointer whitespace-nowrap shrink-0 group ${
-                  isActive
-                    ? "opacity-100 scale-105 font-bold"
-                    : "opacity-75 hover:opacity-100 hover:scale-102"
-                }`}
+                className={`flex shrink-0 items-center gap-3 whitespace-nowrap rounded-2xl px-6 py-2 transition-all duration-200 cursor-pointer group ${isActive
+                  ? "scale-110 bg-white font-bold opacity-100 shadow-md ring-2 ring-[#fffff] dark:bg-bg-card"
+                  : "opacity-75 hover:scale-105 hover:bg-white hover:opacity-100 dark:hover:bg-bg-card/70"
+                  }`}
               >
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 shadow-sm ${cat.color} transition-transform group-hover:scale-110`}>
-                  {cat.icon}
-                </div>
-                {cat.name !== "Todos" && (
-                  <span className={`text-xs md:text-sm tracking-tight ${
-                    isActive
-                      ? "text-text-primary font-bold border-b-2 border-text-primary/65 pb-0.5"
-                      : "text-text-secondary font-medium"
+                {cat.name === 'Todos' ? (
+                  <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full shadow-sm ${cat.color} transition-transform group-hover:scale-110`}>
+                    <svg className="h-5 w-5 text-white" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                    </svg>
+                  </div>
+                ) : getCategoryIcon(cat.name)}
+                <span className={`text-xs tracking-tight md:text-sm ${isActive
+                  ? "border-b-2 border-text-primary/65 pb-0.5 font-bold text-text-primary"
+                  : "font-medium text-text-secondary"
                   }`}>
-                    {cat.name}
-                  </span>
-                )}
+                  {cat.name}
+                </span>
               </button>
             );
           })}
@@ -810,12 +659,12 @@ export default function Home() {
               <h2 className="text-3xl font-extrabold tracking-tight text-text-primary font-sans">
                 Explore <span className="text-[#b81d24] font-black">More Activities</span>
               </h2>
-              <button className="flex items-center gap-2 text-gray-500 hover:text-text-primary font-bold text-sm bg-transparent border border-transparent px-3 py-1.5 rounded-xl cursor-pointer">
+              {/* <button className="flex items-center gap-2 text-gray-500 hover:text-text-primary font-bold text-sm bg-transparent border border-transparent px-3 py-1.5 rounded-xl cursor-pointer">
                 <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
                 </svg>
                 <span>Filtrar</span>
-              </button>
+              </button> */}
             </div>
 
             {filteredExplore.length === 0 ? (
