@@ -21,6 +21,7 @@ export default function CriarAtividadePage() {
     const [step, setStep] = useState(1)
     const [title, setTitle] = useState('')
     const [description, setDescription] = useState('')
+    const [imageUrl, setImageUrl] = useState('')
     const [categoryId, setCategoryId] = useState('')
     const [date, setDate] = useState('')
     const [startTime, setStartTime] = useState('')
@@ -127,7 +128,7 @@ export default function CriarAtividadePage() {
             return
         }
 
-        const { error: insertError } = await supabase.from('activities').insert({
+        const { data: activity, error: insertError } = await supabase.from('activities').insert({
             creator_id: user.id,
             category_id: Number(categoryId),
             title,
@@ -141,12 +142,26 @@ export default function CriarAtividadePage() {
             longitude: geocodeData.longitude,
             price: Number(price),
             max_participants: Number(maxParticipants),
-        })
+        }).select('id').single()
 
-        if (insertError) {
-            setError(insertError.message)
+        if (insertError || !activity) {
+            setError(insertError?.message || 'Não foi possível criar a atividade.')
             setLoading(false)
             return
+        }
+
+        if (imageUrl.trim()) {
+            const { error: imageError } = await supabase.from('activity_images').insert({
+                activity_id: activity.id,
+                url: imageUrl.trim(),
+                position: 0,
+            })
+
+            if (imageError) {
+                setError(imageError.message)
+                setLoading(false)
+                return
+            }
         }
 
         setMessage('Atividade criada com sucesso e enviada para aprovação.')
@@ -154,6 +169,7 @@ export default function CriarAtividadePage() {
         setStep(1)
         setTitle('')
         setDescription('')
+        setImageUrl('')
         setCategoryId('')
         setDate('')
         setStartTime('')
@@ -187,6 +203,7 @@ export default function CriarAtividadePage() {
                             {step === 1 ? <>
                                 <div><label htmlFor="title">Título</label><input id="title" type="text" value={title} onChange={(event) => setTitle(event.target.value)} required /></div>
                                 <div><label htmlFor="description">Descrição</label><textarea id="description" value={description} onChange={(event) => setDescription(event.target.value)} required /></div>
+                                <div><label htmlFor="imageUrl">Imagem da atividade (URL)</label><input id="imageUrl" type="url" value={imageUrl} onChange={(event) => setImageUrl(event.target.value)} placeholder="https://..." /></div>
                                 <div><label htmlFor="category">Categoria</label><select id="category" value={categoryId} onChange={(event) => setCategoryId(event.target.value)} required><option value="">Selecione uma categoria</option>{categories.map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}</select></div>
                                 <div><label htmlFor="date">Data</label><input id="date" type="date" value={date} onChange={(event) => setDate(event.target.value)} required /></div>
                                 <div><label htmlFor="startTime">Horário inicial</label><input id="startTime" type="time" value={startTime} onChange={(event) => setStartTime(event.target.value)} required /></div>

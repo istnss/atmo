@@ -19,6 +19,7 @@ type Activity = {
   max_participants: number
   category_id: number
   creator_id: string
+  image_url: string | null
   status: string
   category_name: string
   creator_name: string
@@ -99,6 +100,18 @@ export default function Home() {
         .eq('status', 'approved')
         .order('date', { ascending: true })
 
+      const activityIds = (activitiesData ?? []).map(activity => activity.id)
+      const { data: imagesData } = await supabase
+        .from('activity_images')
+        .select('activity_id, url, position')
+        .in('activity_id', activityIds)
+        .order('position', { ascending: true })
+
+      const imageMap = new Map<number, string>()
+      for (const image of imagesData ?? []) {
+        if (!imageMap.has(image.activity_id)) imageMap.set(image.activity_id, image.url)
+      }
+
       // Map relations and calculate duration
       const mapped = (activitiesData ?? []).map((act: any) => {
         const category = (categoriesData ?? []).find(c => c.id === act.category_id);
@@ -118,6 +131,7 @@ export default function Home() {
 
         return {
           ...act,
+          image_url: imageMap.get(act.id) ?? null,
           category_name: category ? category.name : 'Outros',
           creator_name: creator ? (creator.name || 'Organizador') : 'Organizador',
           creator_avatar: creator ? creator.avatar_url : null,
@@ -195,29 +209,7 @@ export default function Home() {
   };
 
   const filteredPopular = displayActivities.filter(filterFn);
-  const filteredExplore = exploreActivities.filter(filterFn);
-
-  // Image mapping helpers matching the premium mockup look
-  const getCategoryImage = (categoryName: string, title: string = ''): string => {
-    const cat = categoryName.toLowerCase();
-    const t = title.toLowerCase();
-    if (cat.includes('manual') || cat.includes('reparo') || t.includes('banquinho') || t.includes('marcenaria')) {
-      return '/bench_coffee.svg';
-    }
-    if (cat.includes('art') || cat.includes('criativ') || cat.includes('cerâmica') || t.includes('cerâmica')) {
-      return '/pottery.svg';
-    }
-    if (cat.includes('intelec') || cat.includes('leitura') || t.includes('leitura') || t.includes('escrita')) {
-      return '/reading_book.svg';
-    }
-    if (cat.includes('jogo')) {
-      return 'https://images.unsplash.com/photo-1610890716171-6b1bb98ffd09?w=500&auto=format&fit=crop&q=60';
-    }
-    if (cat.includes('físic') || cat.includes('atividade')) {
-      return 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=500&auto=format&fit=crop&q=60';
-    }
-    return 'https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=500&auto=format&fit=crop&q=60';
-  };
+  const filteredExplore = exploreActivities.filter(filterFn).slice(3);
 
   const getDurationColor = (categoryName: string): string => {
     const name = categoryName.toLowerCase();
@@ -319,7 +311,7 @@ export default function Home() {
               </span>
               <input
                 type="text"
-                placeholder="Advanced Search..."
+                placeholder="Pesquisa..."
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
                 className="w-full pl-11 pr-4 py-3 bg-white dark:bg-bg-card border border-gray-200 dark:border-gray-800 rounded-full focus:outline-none focus:ring-2 focus:ring-[#b81d24] focus:border-transparent text-sm shadow-sm transition-all text-text-primary"
@@ -381,7 +373,7 @@ export default function Home() {
         <section className="bg-transparent px-6 md:px-8 py-8 flex-1 max-w-7xl w-full mx-auto transition-colors duration-200">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-3xl font-extrabold text-text-primary tracking-tight font-sans">
-              Popular <span className="text-[#b81d24] italic font-black">This Week</span>
+              Popular <span className="text-[#b81d24] italic font-black">Nessa semana</span>
             </h2>
             <button className="text-text-secondary hover:text-text-primary p-2">
               <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
@@ -408,11 +400,13 @@ export default function Home() {
                 >
                   {/* Image & Badges */}
                   <div className="relative h-56 w-full bg-[#faf9f5] dark:bg-bg-primary overflow-hidden border-b border-gray-100 dark:border-gray-800">
-                    <img
-                      src={getCategoryImage(act.category_name, act.title)}
-                      alt={act.title}
-                      className="w-full h-full object-cover group-hover:scale-103 transition-transform duration-500"
-                    />
+                      {act.image_url && (
+                        <img
+                          src={act.image_url}
+                          alt={act.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                      )}
 
                     {/* Badge Overlays */}
                     <div className="absolute top-4 left-4 flex gap-2">
@@ -469,7 +463,7 @@ export default function Home() {
           <div className="max-w-7xl mx-auto">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-3xl font-extrabold tracking-tight text-text-primary font-sans">
-                Explore <span className="text-[#b81d24] font-black">More Activities</span>
+                Explore <span className="text-[#b81d24] font-black">Mais Atividades</span>
               </h2>
               {/* <button className="flex items-center gap-2 text-gray-500 hover:text-text-primary font-bold text-sm bg-transparent border border-transparent px-3 py-1.5 rounded-xl cursor-pointer">
                 <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">

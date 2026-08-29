@@ -17,6 +17,7 @@ type Activity = {
   category_id: number
   title: string
   description: string | null
+  image_url: string | null
   date: string
   start_time: string
   end_time: string | null
@@ -40,6 +41,7 @@ export default function EditarAtividadePage() {
 
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
+  const [imageUrl, setImageUrl] = useState('')
   const [categoryId, setCategoryId] = useState('')
   const [date, setDate] = useState('')
   const [startTime, setStartTime] = useState('')
@@ -140,10 +142,18 @@ export default function EditarAtividadePage() {
         return
       }
 
-      setActivity(activityData)
+      const { data: primaryImage } = await supabase
+        .from('activity_images')
+        .select('id, url, position')
+        .eq('activity_id', activityId)
+        .order('position', { ascending: true })
+        .limit(1)
+        .maybeSingle()
+      setActivity({ ...activityData, image_url: primaryImage?.url ?? null })
 
       setTitle(activityData.title)
       setDescription(activityData.description ?? '')
+      setImageUrl(primaryImage?.url ?? '')
       setCategoryId(String(activityData.category_id))
       setDate(activityData.date)
       setStartTime(activityData.start_time)
@@ -305,6 +315,31 @@ export default function EditarAtividadePage() {
       return
     }
 
+    const { data: currentImage } = await supabase
+      .from('activity_images')
+      .select('id')
+      .eq('activity_id', activity.id)
+      .order('position', { ascending: true })
+      .limit(1)
+      .maybeSingle()
+
+    const imageOperation = imageUrl.trim()
+      ? currentImage
+        ? supabase.from('activity_images').update({ url: imageUrl.trim() }).eq('id', currentImage.id)
+        : supabase.from('activity_images').insert({ activity_id: activity.id, url: imageUrl.trim(), position: 0 })
+      : currentImage
+        ? supabase.from('activity_images').delete().eq('id', currentImage.id)
+        : null
+
+    if (imageOperation) {
+      const { error: imageError } = await imageOperation
+      if (imageError) {
+        setError(imageError.message)
+        setSaving(false)
+        return
+      }
+    }
+
     setMessage('Atividade atualizada com sucesso.')
     setSaving(false)
 
@@ -392,6 +427,17 @@ export default function EditarAtividadePage() {
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 rows={4}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="imageUrl">Imagem da atividade (URL)</label>
+              <input
+                id="imageUrl"
+                type="url"
+                value={imageUrl}
+                onChange={(e) => setImageUrl(e.target.value)}
+                placeholder="https://..."
               />
             </div>
 

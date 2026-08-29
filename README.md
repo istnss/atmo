@@ -12,43 +12,6 @@ As atividades podem ser gratuitas ou pagas e possuem informações como local, e
 
 ---
 
-## Funcionalidades previstas
-
-### Usuário
-
-* Cadastro
-* Login
-* Logout
-* Perfil
-* Visualização de atividades
-* Inscrição em atividades
-* Cancelamento de inscrição
-* Visualização das atividades das quais participa
-
-### Organizador
-
-* Criar atividades
-* Editar atividades
-* Gerenciar vagas
-* Visualizar participantes
-* Marcar presença
-
-
-
-## Regras definidas para o MVP
-
-* Atividades podem ser **gratuitas ou pagas**.
-* É necessário possuir cadastro para participar.
-* O participante pode cancelar sua inscrição.
-* Atividades podem possuir limite de vagas.
-* O endereço será público antes da confirmação da participação.
-* O organizador será exibido.
-* Atividades poderão possuir fotos.
-* A confirmação da participação poderá utilizar e-mail.
-* Sistema de reputação não fará parte da primeira versão do MVP.
-
----
-
 ## Tecnologias
 
 * Next.js

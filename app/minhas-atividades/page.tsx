@@ -19,6 +19,7 @@ type Activity = {
   max_participants: number
   category_id: number
   creator_id: string
+  image_url: string | null
   status: string
   cancellation_reason: string | null
   category_name?: string
@@ -91,6 +92,16 @@ export default function MinhasAtividadesPage() {
 
       const allParticipants = participantsData ?? []
 
+      const { data: imagesData } = await supabase
+        .from('activity_images')
+        .select('activity_id, url, position')
+        .order('position', { ascending: true })
+
+      const imageMap = new Map<number, string>()
+      for (const image of imagesData ?? []) {
+        if (!imageMap.has(image.activity_id)) imageMap.set(image.activity_id, image.url)
+      }
+
       // Helper to compute duration & map metadata
       const mapActivity = (act: any): Activity => {
         const cat = cats.find(c => c.id === act.category_id)
@@ -108,6 +119,7 @@ export default function MinhasAtividadesPage() {
 
         return {
           ...act,
+          image_url: imageMap.get(act.id) ?? null,
           category_name: cat ? cat.name : 'Outros',
           creator_name: profMap.get(act.creator_id) || 'Organizador',
           confirmed_count: confirmed,
@@ -209,28 +221,6 @@ export default function MinhasAtividadesPage() {
     } finally {
       setActionLoadingId(null)
     }
-  }
-
-  // Helper visual mapping functions matching the design system
-  const getCategoryImage = (categoryName: string = '', title: string = ''): string => {
-    const cat = categoryName.toLowerCase()
-    const t = title.toLowerCase()
-    if (cat.includes('manual') || cat.includes('reparo') || t.includes('marcenaria') || t.includes('banquinho')) {
-      return '/bench_coffee.svg'
-    }
-    if (cat.includes('art') || cat.includes('criativ') || cat.includes('cerâmica') || t.includes('cerâmica')) {
-      return '/pottery.svg'
-    }
-    if (cat.includes('intelec') || cat.includes('leitura') || t.includes('livro') || t.includes('escrita')) {
-      return '/reading_book.svg'
-    }
-    if (cat.includes('jogo')) {
-      return 'https://images.unsplash.com/photo-1610890716171-6b1bb98ffd09?w=500&auto=format&fit=crop&q=60'
-    }
-    if (cat.includes('físic') || cat.includes('atividade')) {
-      return 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=500&auto=format&fit=crop&q=60'
-    }
-    return 'https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=500&auto=format&fit=crop&q=60'
   }
 
   const getDurationColor = (categoryName: string = ''): string => {
@@ -570,11 +560,13 @@ export default function MinhasAtividadesPage() {
                     >
                       {/* Image Thumbnail & Badges */}
                       <div className="relative h-48 w-full bg-[#faf9f5] dark:bg-bg-primary overflow-hidden border-b border-gray-100 dark:border-gray-800">
-                        <img
-                          src={getCategoryImage(act.category_name, act.title)}
-                          alt={act.title}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        />
+                        {act.image_url && (
+                          <img
+                            src={act.image_url}
+                            alt={act.title}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          />
+                        )}
 
                         {/* Top Badges */}
                         <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
@@ -718,11 +710,13 @@ export default function MinhasAtividadesPage() {
                   >
                     {/* Image Thumbnail & Badges */}
                     <div className="relative h-48 w-full bg-[#faf9f5] dark:bg-bg-primary overflow-hidden border-b border-gray-100 dark:border-gray-800">
-                      <img
-                        src={getCategoryImage(act.category_name, act.title)}
-                        alt={act.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
+                      {act.image_url && (
+                        <img
+                          src={act.image_url}
+                          alt={act.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                      )}
 
                       {/* Duration & Category Badge */}
                       <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">

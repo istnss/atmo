@@ -19,6 +19,7 @@ type Activity = {
   max_participants: number
   category_id: number
   creator_id: string
+  image_url: string | null
   cancellation_reason: string | null
   status: string
 }
@@ -76,7 +77,14 @@ export default function AtividadeDetalhesPage() {
           return
         }
 
-        setActivity(activityData)
+        const { data: imageData } = await supabase
+          .from('activity_images')
+          .select('url, position')
+          .eq('activity_id', activityId)
+          .order('position', { ascending: true })
+          .limit(1)
+          .maybeSingle()
+        setActivity({ ...activityData, image_url: imageData?.url ?? null })
 
         // Category
         const { data: categoryData } = await supabase
@@ -235,27 +243,6 @@ export default function AtividadeDetalhesPage() {
     setJoining(false)
   }
 
-  const getCategoryImage = (categoryName: string = '', title: string = ''): string => {
-    const cat = categoryName.toLowerCase()
-    const t = title.toLowerCase()
-    if (cat.includes('manual') || cat.includes('reparo') || t.includes('banquinho') || t.includes('marcenaria')) {
-      return '/bench_coffee.svg'
-    }
-    if (cat.includes('art') || cat.includes('criativ') || cat.includes('cerâmica') || t.includes('cerâmica')) {
-      return '/pottery.svg'
-    }
-    if (cat.includes('intelec') || cat.includes('leitura') || t.includes('livro') || t.includes('escrita')) {
-      return '/reading_book.svg'
-    }
-    if (cat.includes('jogo')) {
-      return 'https://images.unsplash.com/photo-1610890716171-6b1bb98ffd09?w=800&auto=format&fit=crop&q=60'
-    }
-    if (cat.includes('físic') || cat.includes('atividade')) {
-      return 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=800&auto=format&fit=crop&q=60'
-    }
-    return 'https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=800&auto=format&fit=crop&q=60'
-  }
-
   const getDurationColor = (categoryName: string = ''): string => {
     const name = categoryName.toLowerCase()
     if (name.includes('manual') || name.includes('reparo')) return 'bg-[#e2a524] text-black font-bold'
@@ -354,11 +341,13 @@ export default function AtividadeDetalhesPage() {
         {/* Hero Visual Card */}
         <div className="relative rounded-[32px] overflow-hidden border border-gray-200/80 dark:border-gray-800/80 bg-white dark:bg-bg-card shadow-sm mb-8">
           <div className="relative h-64 md:h-80 w-full bg-gray-100 dark:bg-gray-800 overflow-hidden">
-            <img
-              src={getCategoryImage(category?.name, activity.title)}
-              alt={activity.title}
-              className="w-full h-full object-cover"
-            />
+            {activity.image_url && (
+              <img
+                src={activity.image_url}
+                alt={activity.title}
+                className="w-full h-full object-cover"
+              />
+            )}
             <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent"></div>
 
             {/* Top Badges */}
@@ -374,11 +363,11 @@ export default function AtividadeDetalhesPage() {
             </div>
 
             {/* Title Over Hero (Desktop & Mobile) */}
-            <div className="absolute bottom-6 left-6 right-6 text-white">
-              <p className="text-xs font-bold uppercase tracking-[0.18em] text-amber-400 mb-1">
+            <div className="absolute bottom-4 left-4 right-4 rounded-2xl bg-white/25 p-4 text-white shadow-lg backdrop-blur-sm md:bottom-6 md:left-6 md:right-6 md:p-5">
+              <p className="mb-1 text-xs font-bold uppercase tracking-[0.18em] text-amber-400">
                 {activity.location_name}
               </p>
-              <h1 className="text-2xl md:text-4xl font-extrabold tracking-tight text-white drop-shadow-sm">
+              <h1 className="text-2xl font-extrabold tracking-tight text-white md:text-4xl">
                 {activity.title}
               </h1>
             </div>

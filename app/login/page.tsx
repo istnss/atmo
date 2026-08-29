@@ -162,11 +162,11 @@ function LoginFormContent() {
         {/* Background Image with Warm Blur & Dynamic Theme Gradient Overlays */}
         <div className="absolute inset-0 z-0">
           <img
-            src="https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=1600&auto=format&fit=crop&q=80"
+            src="https://images.unsplash.com/photo-1541753866388-0b3c701627d3?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
             alt="Atmo Community Activities"
             className="w-full h-full object-cover object-center opacity-30 dark:opacity-45 scale-105 filter saturate-110 transition-opacity duration-300"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#f3f2eb] via-[#f3f2eb]/75 to-transparent dark:from-[#161618] dark:via-[#161618]/75 dark:to-transparent transition-colors duration-200"></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-[#f3f2eb] via-[#f3f2eb]/2 to-transparent dark:from-[#161618] dark:via-[#161618]/75 dark:to-transparent transition-colors duration-200"></div>
           <div className="absolute inset-0 bg-gradient-to-r from-[#f3f2eb]/90 via-transparent to-transparent dark:from-[#161618]/90 dark:via-transparent dark:to-transparent transition-colors duration-200"></div>
         </div>
 

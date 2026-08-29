@@ -19,6 +19,7 @@ type Activity = {
   max_participants: number
   category_id: number
   creator_id: string
+  image_url: string | null
   status: string
   category_name: string
   creator_name: string
@@ -88,6 +89,20 @@ export default function AtividadesPage() {
 
         if (actError) throw actError
 
+        const activityIds = (activitiesData ?? []).map(activity => activity.id)
+        const { data: imagesData, error: imagesError } = await supabase
+          .from('activity_images')
+          .select('activity_id, url, position')
+          .in('activity_id', activityIds)
+          .order('position', { ascending: true })
+
+        if (imagesError) throw imagesError
+
+        const imageMap = new Map<number, string>()
+        for (const image of imagesData ?? []) {
+          if (!imageMap.has(image.activity_id)) imageMap.set(image.activity_id, image.url)
+        }
+
         const mapped: Activity[] = (activitiesData ?? []).map((act: any) => {
           const category = cats.find(c => c.id === act.category_id)
           const confirmedCount = allParticipants.filter(p => p.activity_id === act.id).length
@@ -104,6 +119,7 @@ export default function AtividadesPage() {
 
           return {
             ...act,
+            image_url: imageMap.get(act.id) ?? null,
             category_name: category ? category.name : 'Outros',
             creator_name: profMap.get(act.creator_id) || 'Organizador',
             confirmed_count: confirmedCount,
@@ -122,28 +138,6 @@ export default function AtividadesPage() {
 
     loadAllActivities()
   }, [])
-
-  // Helpers matching the design system
-  const getCategoryImage = (categoryName: string = '', title: string = ''): string => {
-    const cat = categoryName.toLowerCase()
-    const t = title.toLowerCase()
-    if (cat.includes('manual') || cat.includes('reparo') || t.includes('banquinho') || t.includes('marcenaria')) {
-      return '/bench_coffee.svg'
-    }
-    if (cat.includes('art') || cat.includes('criativ') || cat.includes('cerâmica') || t.includes('cerâmica')) {
-      return '/pottery.svg'
-    }
-    if (cat.includes('intelec') || cat.includes('leitura') || t.includes('livro') || t.includes('escrita')) {
-      return '/reading_book.svg'
-    }
-    if (cat.includes('jogo')) {
-      return 'https://images.unsplash.com/photo-1610890716171-6b1bb98ffd09?w=500&auto=format&fit=crop&q=60'
-    }
-    if (cat.includes('físic') || cat.includes('atividade')) {
-      return 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=500&auto=format&fit=crop&q=60'
-    }
-    return 'https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=500&auto=format&fit=crop&q=60'
-  }
 
   const getDurationColor = (categoryName: string = ''): string => {
     const name = categoryName.toLowerCase()
@@ -472,11 +466,13 @@ export default function AtividadesPage() {
                   >
                     {/* Image & Badges */}
                     <div className="relative h-56 w-full bg-[#faf9f5] dark:bg-bg-primary overflow-hidden border-b border-gray-100 dark:border-gray-800">
-                      <img
-                        src={getCategoryImage(act.category_name, act.title)}
-                        alt={act.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
+                      {act.image_url && (
+                        <img
+                          src={act.image_url}
+                          alt={act.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                      )}
 
                       {/* Badge Overlays */}
                       <div className="absolute top-4 left-4 flex gap-2">
