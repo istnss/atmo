@@ -15,6 +15,8 @@ type Activity = {
   end_time: string | null
   location_name: string
   address: string
+  latitude: number | null
+  longitude: number | null
   price: number
   max_participants: number
   category_id: number
@@ -34,6 +36,7 @@ type Profile = {
   name: string | null
   avatar_url: string | null
   bio: string | null
+  created_at: string | null
 }
 
 export default function AtividadeDetalhesPage() {
@@ -47,6 +50,8 @@ export default function AtividadeDetalhesPage() {
   const [participantCount, setParticipantCount] = useState(0)
   const [isParticipant, setIsParticipant] = useState(false)
   const [isCreator, setIsCreator] = useState(false)
+  const [creatorActivityCount, setCreatorActivityCount] = useState(0)
+  const [creatorParticipationCount, setCreatorParticipationCount] = useState(0)
 
   const [loading, setLoading] = useState(true)
   const [joining, setJoining] = useState(false)
@@ -98,11 +103,16 @@ export default function AtividadeDetalhesPage() {
         // Creator
         const { data: creatorData } = await supabase
           .from('profiles')
-          .select('id, name, avatar_url, bio')
+          .select('id, name, avatar_url, bio, created_at')
           .eq('id', activityData.creator_id)
           .single()
 
         setCreator(creatorData)
+
+        const { count: activityCount } = await supabase.from('activities').select('id', { count: 'exact', head: true }).eq('creator_id', activityData.creator_id)
+        setCreatorActivityCount(activityCount ?? 0)
+        const { count: participationCount } = await supabase.from('activity_participants').select('activity_id', { count: 'exact', head: true }).eq('user_id', activityData.creator_id).eq('status', 'confirmed')
+        setCreatorParticipationCount(participationCount ?? 0)
 
         // Participant count
         const { count } = await supabase
@@ -431,7 +441,7 @@ export default function AtividadeDetalhesPage() {
               </div>
 
               <a
-                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${activity.location_name}, ${activity.address}`)}`}
+                href={activity.latitude != null && activity.longitude != null ? `https://www.google.com/maps/search/?api=1&query=${activity.latitude},${activity.longitude}` : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(activity.address)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 text-xs md:text-sm font-bold text-[#2b4c7e] hover:underline"
@@ -447,13 +457,16 @@ export default function AtividadeDetalhesPage() {
             <section className="bg-white dark:bg-bg-card rounded-[28px] border border-gray-200/80 dark:border-gray-800/80 p-6 md:p-8 shadow-sm">
               <h2 className="text-xl font-bold text-text-primary mb-4">Organizador da Oficina</h2>
               <div className="flex items-center gap-4">
-                <div className="w-14 h-14 rounded-full bg-[#2b4c7e] text-white flex items-center justify-center font-bold text-lg shadow-sm">
-                  {(creator?.name || 'OR').slice(0, 2).toUpperCase()}
-                </div>
+                {creator?.avatar_url ? <img src={creator.avatar_url} alt={creator.name || 'Organizador'} className="h-14 w-14 rounded-full object-cover shadow-sm" /> : <div className="w-14 h-14 rounded-full bg-[#2b4c7e] text-white flex items-center justify-center font-bold text-lg shadow-sm">{(creator?.name || 'OR').slice(0, 2).toUpperCase()}</div>}
                 <div>
                   <h3 className="font-bold text-lg text-text-primary">{creator?.name || 'Organizador'}</h3>
                   <p className="text-xs text-text-secondary">{creator?.bio || 'Membro da comunidade Atmô'}</p>
+                  <p className="mt-1 text-xs text-text-secondary">No Atmô desde {creator?.created_at ? new Date(creator.created_at).toLocaleDateString('pt-BR') : 'data não informada'}</p>
                 </div>
+              </div>
+              <div className="mt-5 grid grid-cols-2 gap-3 text-center">
+                <div className="rounded-xl bg-gray-50 p-3 dark:bg-gray-800/50"><strong className="block text-lg text-text-primary">{creatorActivityCount}</strong><span className="text-xs text-text-secondary">atividades criadas</span></div>
+                <div className="rounded-xl bg-gray-50 p-3 dark:bg-gray-800/50"><strong className="block text-lg text-text-primary">{creatorParticipationCount}</strong><span className="text-xs text-text-secondary">participações</span></div>
               </div>
             </section>
           </div>
@@ -473,6 +486,7 @@ export default function AtividadeDetalhesPage() {
                   {Number(activity.price) > 0 && <span className="text-xs text-text-secondary font-medium">/ pessoa</span>}
                 </div>
               </div>
+              {Number(activity.price) > 0 && <p className="mb-6 rounded-xl bg-amber-50 p-3 text-xs font-semibold text-amber-800 dark:bg-amber-950/40 dark:text-amber-300">Atividade paga. Consulte a descrição para ver as formas de pagamento e para quem realizar o pagamento.</p>}
 
               {/* Spots & Progress */}
               <div className="mb-6">

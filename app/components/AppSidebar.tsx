@@ -10,6 +10,10 @@ export default function AppSidebar() {
   const router = useRouter()
   const [name, setName] = useState('Usuário')
   const [email, setEmail] = useState('')
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
+  const [avatarLoading, setAvatarLoading] = useState(false)
+  const avatarInputRef = useRef<HTMLInputElement>(null)
   const [darkMode, setDarkMode] = useState(false)
   const [showProfileMenu, setShowProfileMenu] = useState(false)
   const profileMenuRef = useRef<HTMLDivElement>(null)
@@ -35,6 +39,9 @@ export default function AppSidebar() {
       }
       setEmail(user.email ?? '')
       setName(user.user_metadata?.name ?? user.email?.split('@')[0] ?? 'Usuário')
+      const { data: profile } = await supabase.from('profiles').select('name, avatar_url').eq('id', user.id).maybeSingle()
+      setName(profile?.name ?? user.user_metadata?.name ?? user.email?.split('@')[0] ?? 'Usuário')
+      setAvatarUrl(profile?.avatar_url ?? null)
     }
 
     loadUser()
@@ -69,6 +76,35 @@ export default function AppSidebar() {
     await supabase.auth.signOut()
     router.push('/login')
     router.refresh()
+  }
+
+  async function handleAvatarChange(event: { target: { files: FileList | null } }) {
+    const file = event.target.files?.[0]
+    if (!file || !file.type?.startsWith('image/')) return
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return
+    setAvatarLoading(true)
+    setAvatarPreview(URL.createObjectURL(file))
+    const extension = file.name.split('.').pop()?.toLowerCase() || 'jpg'
+    const path = `${user.id}/avatar-${Date.now()}.${extension}`
+    const { error: uploadError } = await supabase.storage.from('avatars').upload(path, file, { upsert: true, contentType: file.type })
+    if (!uploadError) {
+      const { data: publicUrlData } = supabase.storage.from('avatars').getPublicUrl(path)
+      const nextAvatarUrl = publicUrlData.publicUrl
+      const { error: profileError } = await supabase.from('profiles').update({ avatar_url: nextAvatarUrl }).eq('id', user.id)
+      if (!profileError) setAvatarUrl(nextAvatarUrl)
+    }
+    setAvatarPreview(null)
+    setAvatarLoading(false)
+  }
+
+  async function handleAvatarRemove() {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return
+    setAvatarLoading(true)
+    const { error } = await supabase.from('profiles').update({ avatar_url: null }).eq('id', user.id)
+    if (!error) setAvatarUrl(null)
+    setAvatarLoading(false)
   }
 
   const usernameTag = `@${email.split('@')[0] || 'usuario'}`
@@ -190,9 +226,7 @@ export default function AppSidebar() {
                   : 'hover:bg-gray-200/60 dark:hover:bg-gray-800/60 border-transparent'
               }`}
             >
-              <div className="w-10 h-10 rounded-full bg-[#2b4c7e] text-white flex items-center justify-center font-bold text-sm shadow-xs shrink-0">
-                {name ? name.substring(0, 2).toUpperCase() : 'US'}
-              </div>
+              {avatarPreview || avatarUrl ? <img src={avatarPreview || avatarUrl || ''} alt={name} className="h-10 w-10 shrink-0 rounded-full object-cover" /> : <div className="w-10 h-10 rounded-full bg-[#2b4c7e] text-white flex items-center justify-center font-bold text-sm shadow-xs shrink-0">{name ? name.substring(0, 2).toUpperCase() : 'US'}</div>}
 
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-bold text-text-primary truncate">{name}</p>
@@ -202,11 +236,14 @@ export default function AppSidebar() {
               <svg className="w-5 h-5 text-text-secondary/70 shrink-0" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM18 10a2 2 0 11-4 0 2 2 0 014 0z" />
               </svg>
+              <button type="button" onClick={(event) => { event.stopPropagation(); avatarInputRef.current?.click() }} className="text-xs font-bold text-[#2b4c7e]" title="Alterar foto">Editar</button>
+              <input ref={avatarInputRef} id="sidebar-avatar" type="file" accept="image/*" onChange={handleAvatarChange} className="hidden" disabled={avatarLoading} />
             </div>
 
             {/* Profile Dropdown Modal (ONLY Meu Perfil and Sair da Conta) */}
             {showProfileMenu && (
               <div className="absolute bottom-20 left-0 right-0 bg-white dark:bg-bg-card border border-gray-200/90 dark:border-gray-800 rounded-2xl shadow-xl p-2 z-50 flex flex-col gap-1 animate-fadeIn">
+                <button type="button" onClick={handleAvatarRemove} disabled={avatarLoading || !avatarUrl} className="px-4 py-2.5 text-left text-sm font-bold text-red-600 disabled:opacity-50">Remover foto</button>
                 <Link
                   href="/perfil"
                   onClick={() => setShowProfileMenu(false)}

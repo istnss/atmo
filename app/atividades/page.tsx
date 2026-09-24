@@ -23,6 +23,7 @@ type Activity = {
   status: string
   category_name: string
   creator_name: string
+  neighborhood: string
   confirmed_count: number
   available_spots: number
   duration: string
@@ -45,9 +46,14 @@ export default function AtividadesPage() {
   const [selectedCategory, setSelectedCategory] = useState('Todos')
   const [searchInput, setSearchInput] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
+  const [showSearchFilters, setShowSearchFilters] = useState(false)
   const [onlyFree, setOnlyFree] = useState(false)
+  const [priceFilter, setPriceFilter] = useState<'all' | 'free' | 'paid'>('all')
+  const [selectedNeighborhood, setSelectedNeighborhood] = useState('Todos')
   const [onlyWithSpots, setOnlyWithSpots] = useState(false)
   const [sortBy, setSortBy] = useState<'date_asc' | 'date_desc' | 'price_asc' | 'price_desc'>('date_asc')
+
+  const extractNeighborhood = (address: string) => address.split(',')[2]?.trim() || ''
 
   useEffect(() => {
     async function loadAllActivities() {
@@ -122,6 +128,7 @@ export default function AtividadesPage() {
             image_url: imageMap.get(act.id) ?? null,
             category_name: category ? category.name : 'Outros',
             creator_name: profMap.get(act.creator_id) || 'Organizador',
+            neighborhood: extractNeighborhood(act.address || ''),
             confirmed_count: confirmedCount,
             available_spots: Math.max(0, act.max_participants - confirmedCount),
             duration,
@@ -222,8 +229,12 @@ export default function AtividadesPage() {
         if (!match) return false
       }
 
+      if (selectedNeighborhood !== 'Todos' && act.neighborhood !== selectedNeighborhood) return false
+
       // Only Free filter
       if (onlyFree && Number(act.price) > 0) return false
+      if (priceFilter === 'free' && Number(act.price) > 0) return false
+      if (priceFilter === 'paid' && Number(act.price) === 0) return false
 
       // Only With Spots filter
       if (onlyWithSpots && act.available_spots <= 0) return false
@@ -245,6 +256,7 @@ export default function AtividadesPage() {
       color: 'bg-[#2B4C7E]',
     })),
   ]
+  const neighborhoodList = ['Todos', ...Array.from(new Set(activities.map((activity) => activity.neighborhood).filter(Boolean))).sort()]
 
   return (
     <div className="min-h-screen bg-[#faf9f5] dark:bg-[#0f0f10] md:flex font-sans antialiased text-text-primary transition-colors duration-200 select-none">
@@ -271,6 +283,8 @@ export default function AtividadesPage() {
               onSubmit={(e) => {
                 e.preventDefault()
                 setSearchQuery(searchInput)
+                setShowSearchFilters(true)
+                setPriceFilter('free')
               }}
               className="flex w-full flex-col items-stretch gap-3 sm:flex-row sm:items-center lg:max-w-xl"
             >
@@ -295,6 +309,12 @@ export default function AtividadesPage() {
               >
                 Buscar
               </button>
+
+              {showSearchFilters && <select value={priceFilter} onChange={(event) => setPriceFilter(event.target.value as 'all' | 'free' | 'paid')} className="rounded-full bg-white px-4 py-3 text-xs font-bold text-text-primary shadow-sm dark:bg-bg-card">
+                <option value="free">Públicas e gratuitas</option>
+                <option value="paid">Públicas e pagas</option>
+                <option value="all">Todas as públicas</option>
+              </select>}
 
               <div className="hidden sm:flex items-center gap-2 px-4 py-3 border border-gray-200/80 dark:border-gray-800 rounded-full bg-white dark:bg-bg-card text-text-secondary text-xs font-semibold shadow-xs shrink-0">
                 <svg className="w-4 h-4 text-[#2b4c7e]" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -361,6 +381,14 @@ export default function AtividadesPage() {
               ✓ Apenas Gratuitas
             </button>
 
+            <button type="button" onClick={() => setPriceFilter(priceFilter === 'paid' ? 'all' : 'paid')} className={`rounded-full px-3.5 py-1.5 text-xs font-bold transition-all ${priceFilter === 'paid' ? 'bg-[#b81d24] text-white shadow-xs' : 'bg-gray-100 text-text-secondary dark:bg-gray-800'}`}>
+              ✓ Apenas Pagas
+            </button>
+
+            <select value={selectedNeighborhood} onChange={(event) => setSelectedNeighborhood(event.target.value)} className="rounded-full bg-gray-100 px-3.5 py-1.5 text-xs font-bold text-text-secondary dark:bg-gray-800">
+              {neighborhoodList.map((neighborhood) => <option key={neighborhood} value={neighborhood}>{neighborhood === 'Todos' ? 'Todos os bairros' : neighborhood}</option>)}
+            </select>
+
             {/* With spots only button */}
             <button
               type="button"
@@ -374,7 +402,7 @@ export default function AtividadesPage() {
               ✓ Com Vagas Abertas
             </button>
 
-            {(searchQuery || onlyFree || onlyWithSpots || selectedCategory !== 'Todos') && (
+            {(searchQuery || onlyFree || priceFilter !== 'all' || selectedNeighborhood !== 'Todos' || onlyWithSpots || selectedCategory !== 'Todos') && (
               <button
                 type="button"
                 onClick={() => {
@@ -382,6 +410,8 @@ export default function AtividadesPage() {
                   setSearchInput('')
                   setSearchQuery('')
                   setOnlyFree(false)
+                  setPriceFilter('all')
+                  setSelectedNeighborhood('Todos')
                   setOnlyWithSpots(false)
                 }}
                 className="text-xs text-[#b81d24] hover:underline font-bold px-2 py-1"
@@ -449,6 +479,8 @@ export default function AtividadesPage() {
                     setSearchInput('')
                     setSearchQuery('')
                     setOnlyFree(false)
+                    setPriceFilter('all')
+                    setSelectedNeighborhood('Todos')
                     setOnlyWithSpots(false)
                   }}
                   className="px-6 py-3 bg-[#b81d24] hover:bg-[#a0181d] text-white font-bold rounded-2xl shadow-sm transition-all"

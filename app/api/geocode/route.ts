@@ -39,7 +39,7 @@ export async function POST(request: Request) {
         }
 
         const params = new URLSearchParams({
-            street: `${number} ${street}`,
+            street: `${number} ${street}, ${neighborhood || ''}`,
             city,
             state,
             postalcode: postalCode,

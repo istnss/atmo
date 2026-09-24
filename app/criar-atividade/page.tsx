@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase/client'
 import AppSidebar from '@/app/components/AppSidebar'
@@ -22,6 +22,8 @@ export default function CriarAtividadePage() {
     const [title, setTitle] = useState('')
     const [description, setDescription] = useState('')
     const [imageUrl, setImageUrl] = useState('')
+    const [imageFile, setImageFile] = useState<File | null>(null)
+    const [imagePreview, setImagePreview] = useState<string | null>(null)
     const [categoryId, setCategoryId] = useState('')
     const [date, setDate] = useState('')
     const [startTime, setStartTime] = useState('')
@@ -40,6 +42,9 @@ export default function CriarAtividadePage() {
     const [loading, setLoading] = useState(false)
     const [message, setMessage] = useState('')
     const [error, setError] = useState('')
+    const [showPaymentNotice, setShowPaymentNotice] = useState(false)
+    const [paymentNoticeShown, setPaymentNoticeShown] = useState(false)
+    const descriptionRef = useRef<HTMLTextAreaElement>(null)
 
     useEffect(() => {
         async function loadCategories() {
@@ -164,25 +169,26 @@ export default function CriarAtividadePage() {
             }
         }
 
-        setMessage('Atividade criada com sucesso e enviada para aprovação.')
-        setLoading(false)
-        setStep(1)
-        setTitle('')
-        setDescription('')
-        setImageUrl('')
-        setCategoryId('')
-        setDate('')
-        setStartTime('')
-        setEndTime('')
-        setLocationName('')
-        setPrice('0')
-        setMaxParticipants('')
-        setCep('')
-        setStreet('')
-        setNumber('')
-        setNeighborhood('')
-        setCity('')
-        setState('')
+        if (imageFile) {
+            const extension = imageFile.name.split('.').pop()?.toLowerCase() || 'jpg'
+            const path = `${user.id}/${activity.id}-${Date.now()}.${extension}`
+            const { error: uploadError } = await supabase.storage.from('activity-images').upload(path, imageFile, { contentType: imageFile.type })
+            if (uploadError) {
+                setError(uploadError.message)
+                setLoading(false)
+                return
+            }
+            const { data: publicUrlData } = supabase.storage.from('activity-images').getPublicUrl(path)
+            const { error: imageError } = await supabase.from('activity_images').insert({ activity_id: activity.id, url: publicUrlData.publicUrl, position: 0 })
+            if (imageError) {
+                setError(imageError.message)
+                setLoading(false)
+                return
+            }
+        }
+
+        router.push(`/atividades/${activity.id}`)
+        router.refresh()
     }
 
     return (
@@ -202,14 +208,14 @@ export default function CriarAtividadePage() {
                         {loadingCategories ? <p>Carregando categorias...</p> : <form onSubmit={handleSubmit} className="activity-form">
                             {step === 1 ? <>
                                 <div><label htmlFor="title">Título</label><input id="title" type="text" value={title} onChange={(event) => setTitle(event.target.value)} required /></div>
-                                <div><label htmlFor="description">Descrição</label><textarea id="description" value={description} onChange={(event) => setDescription(event.target.value)} required /></div>
-                                <div><label htmlFor="imageUrl">Imagem da atividade (URL)</label><input id="imageUrl" type="url" value={imageUrl} onChange={(event) => setImageUrl(event.target.value)} placeholder="https://..." /></div>
+                                <div><label htmlFor="description" className={Number(price) > 0 ? 'font-bold text-[#b81d24]' : ''}>Descrição {Number(price) > 0 && '(inclua as formas de pagamento)'}</label><textarea ref={descriptionRef} id="description" value={description} onChange={(event) => setDescription(event.target.value)} required className={Number(price) > 0 && !description.trim() ? 'border-[#b81d24] ring-2 ring-[#b81d24]/20' : ''} /></div>
+                                <div><label htmlFor="imageUrl">Imagem da atividade</label><input id="imageUrl" type="url" value={imageUrl} onChange={(event) => setImageUrl(event.target.value)} placeholder="URL opcional" /><label htmlFor="activityImage" className="mt-2 inline-block cursor-pointer rounded-lg bg-[#F3F2EB] px-4 py-2 text-sm font-bold text-white">{imageFile || imageUrl ? 'Alterar imagem' : 'Anexar imagem'}</label><input id="activityImage" type="file" accept="image/*" onChange={(event) => { const file = event.target.files?.[0]; if (!file) { return } setImageFile(file); setImagePreview(URL.createObjectURL(file)); setImageUrl('') }} className="hidden" />{(imagePreview || imageUrl) && <div className="mt-3 flex items-start gap-3"><img src={imagePreview || imageUrl} alt="Pré-visualização do banner" className="h-24 w-40 rounded-lg object-cover" /><button type="button" onClick={() => { setImageFile(null); setImagePreview(null); setImageUrl('') }} className="rounded-lg border border-red-200 px-3 py-2 text-xs font-bold text-red-600">Excluir imagem</button></div>}</div>
                                 <div><label htmlFor="category">Categoria</label><select id="category" value={categoryId} onChange={(event) => setCategoryId(event.target.value)} required><option value="">Selecione uma categoria</option>{categories.map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}</select></div>
                                 <div><label htmlFor="date">Data</label><input id="date" type="date" value={date} onChange={(event) => setDate(event.target.value)} required /></div>
                                 <div><label htmlFor="startTime">Horário inicial</label><input id="startTime" type="time" value={startTime} onChange={(event) => setStartTime(event.target.value)} required /></div>
                                 <div><label htmlFor="endTime">Horário final</label><input id="endTime" type="time" value={endTime} onChange={(event) => setEndTime(event.target.value)} /></div>
                                 <div><label htmlFor="locationName">Nome do local</label><input id="locationName" type="text" value={locationName} onChange={(event) => setLocationName(event.target.value)} required /></div>
-                                <div><label htmlFor="price">Preço</label><input id="price" type="number" min="0" step="0.01" value={price} onChange={(event) => setPrice(event.target.value)} required /></div>
+                                <div><label htmlFor="price">Preço</label><input id="price" type="number" min="0" step="0.01" value={price} onChange={(event) => { const value = event.target.value; setPrice(value); if (Number(value) === 0) { setPaymentNoticeShown(false) } if (Number(value) > 0 && !paymentNoticeShown) { setShowPaymentNotice(true); setPaymentNoticeShown(true) } }} required /></div>
                                 <div><label htmlFor="maxParticipants">Número máximo de participantes</label><input id="maxParticipants" type="number" min="1" value={maxParticipants} onChange={(event) => setMaxParticipants(event.target.value)} required /></div>
                                 <button type="button" onClick={handleNextStep}>Continuar para o endereço</button>
                             </> : <>
@@ -227,6 +233,7 @@ export default function CriarAtividadePage() {
                     </section>
                 </div>
             </main>
+            {showPaymentNotice && <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-6"><div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl dark:bg-bg-card"><h2 className="text-xl font-bold text-text-primary">Formas de pagamento</h2><p className="mt-3 text-sm text-text-secondary">Como esta atividade é paga, informe na descrição as formas de pagamento e para quem o participante deve pagar.</p><button type="button" onClick={() => { setShowPaymentNotice(false); descriptionRef.current?.focus() }} className="mt-6 rounded-xl bg-[#b81d24] px-5 py-3 text-sm font-bold text-white">Adicionar agora</button></div></div>}
         </div>
     )
 }

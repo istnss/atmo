@@ -429,9 +429,7 @@ export default function Home() {
 
                       {/* Creator Info */}
                       <div className="flex items-center gap-2.5">
-                        <div className="w-8 h-8 rounded-full bg-[#2b4c7e] text-white flex items-center justify-center font-bold text-xs shadow-sm">
-                          {act.creator_name.substring(0, 2).toUpperCase()}
-                        </div>
+                        {act.creator_avatar ? <img src={act.creator_avatar} alt={act.creator_name} className="h-8 w-8 rounded-full object-cover shadow-sm" /> : <div className="w-8 h-8 rounded-full bg-[#2b4c7e] text-white flex items-center justify-center font-bold text-xs shadow-sm">{act.creator_name.substring(0, 2).toUpperCase()}</div>}
                         <span className="text-xs font-semibold text-text-secondary">{act.creator_name}</span>
                       </div>
 
